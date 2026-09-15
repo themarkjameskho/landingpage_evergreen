@@ -3,7 +3,7 @@
   "project": {
     "name": "landing_page_Evergreen",
     "root": "/Volumes/juandemarkho/Projects/landing_page_Evergreen",
-    "repository": "local-only; GitHub remote not yet created",
+    "repository": "https://github.com/themarkjameskho/landingpage_evergreen.git",
     "branch": "main",
     "worktree": "/Volumes/juandemarkho/Projects/landing_page_Evergreen",
     "governing_documents": ["README.md", ".codex/project-delivery/PROJECT-COMPLETION-CONTRACT.md"]
@@ -39,13 +39,13 @@
     "EV-003: npm audit failed with one critical and four high production findings"
   ],
   "next_action": {
-    "action": "Obtain approved landing-page content/design/form inputs and a decision on the release dependency upgrade before external setup",
+    "action": "Obtain approved landing-page content/design/form inputs and a decision on the release dependency upgrade before deployment setup",
     "responsible_role": "Mark",
     "can_proceed_automatically": false,
     "approval_required": true,
     "blocking_input_or_external_change_required": true
   },
-  "last_reconciled_at": "2026-09-15T16:08:00.000Z",
+  "last_reconciled_at": "2026-09-15T16:10:00.000Z",
   "created_at": "2026-09-15T15:03:58.005Z",
-  "updated_at": "2026-09-15T16:08:00.000Z"
+  "updated_at": "2026-09-15T16:10:00.000Z"
 }
