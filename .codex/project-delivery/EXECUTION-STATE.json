@@ -36,10 +36,12 @@
   "latest_evidence": [
     "EV-001: npm run check passed on 2026-09-15",
     "EV-002: npm run build passed on 2026-09-15",
-    "EV-003: npm audit failed with one critical and four high production findings"
+    "EV-003: npm audit failed with one critical and four high production findings",
+    "EV-004: GitHub remote connected and verified",
+    "EV-005: Live landing-page source inventory recorded"
   ],
   "next_action": {
-    "action": "Obtain approved landing-page content/design/form inputs and a decision on the release dependency upgrade before deployment setup",
+    "action": "Obtain review code and approved landing-page content/design/form inputs, then decide the release dependency upgrade before deployment setup",
     "responsible_role": "Mark",
     "can_proceed_automatically": false,
     "approval_required": true,
@@ -47,5 +49,5 @@
   },
   "last_reconciled_at": "2026-09-15T16:10:00.000Z",
   "created_at": "2026-09-15T15:03:58.005Z",
-  "updated_at": "2026-09-15T16:10:00.000Z"
+  "updated_at": "2026-09-15T16:20:00.000Z"
 }

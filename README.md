@@ -2,6 +2,8 @@
 
 Separate Astro repository for an Evergreen landing page. It reads approved page content and images from the existing Evergreen Sanity project; it does not contain a separate Studio or duplicate media library.
 
+The live-page inventory and implementation plan are documented in [`project-docs/LIVE-LANDING-PAGE-MAP.md`](project-docs/LIVE-LANDING-PAGE-MAP.md).
+
 ## Local setup
 
 1. Copy `.env.example` to `.env` and supply the shared Sanity project ID and dataset.
