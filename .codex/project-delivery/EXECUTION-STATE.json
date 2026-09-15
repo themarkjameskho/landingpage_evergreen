@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "project": {
+    "name": "landing_page_Evergreen",
+    "root": "/Volumes/juandemarkho/Projects/landing_page_Evergreen",
+    "repository": "local-only; GitHub remote not yet created",
+    "branch": "main",
+    "worktree": "/Volumes/juandemarkho/Projects/landing_page_Evergreen",
+    "governing_documents": ["README.md", ".codex/project-delivery/PROJECT-COMPLETION-CONTRACT.md"]
+  },
+  "lifecycle_mode": "new",
+  "completion_contract_version": 1,
+  "macro_plan_version": 1,
+  "current_phase": "PH-002",
+  "current_milestone": "MS-002 Architecture and input readiness",
+  "active_work_packages": [],
+  "active_tasks": [],
+  "passed_gates": ["DG-001 Scoped Destination Gate: local repository foundation only"],
+  "blockers": [
+    {
+      "id": "BL-001",
+      "summary": "Release dependency audit reports one critical and four high production findings; approved content, design direction, and external release configuration are also not yet available",
+      "owner": "Mark",
+      "status": "open",
+      "occurrence_count": 1,
+      "next_action": "Choose whether to approve the Astro 7 / Vercel 11 breaking upgrade before deployment, then provide approved landing-page inputs"
+    }
+  ],
+  "pending_approvals": [],
+  "role_threads": {
+    "orchestrator": null,
+    "senior_architect": null,
+    "senior_developer": null,
+    "developers": []
+  },
+  "latest_evidence": [
+    "EV-001: npm run check passed on 2026-09-15",
+    "EV-002: npm run build passed on 2026-09-15",
+    "EV-003: npm audit failed with one critical and four high production findings"
+  ],
+  "next_action": {
+    "action": "Obtain approved landing-page content/design/form inputs and a decision on the release dependency upgrade before external setup",
+    "responsible_role": "Mark",
+    "can_proceed_automatically": false,
+    "approval_required": true,
+    "blocking_input_or_external_change_required": true
+  },
+  "last_reconciled_at": "2026-09-15T16:08:00.000Z",
+  "created_at": "2026-09-15T15:03:58.005Z",
+  "updated_at": "2026-09-15T16:08:00.000Z"
+}
