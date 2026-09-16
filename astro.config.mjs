@@ -2,9 +2,25 @@
 import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
+const defaultSiteUrl = 'https://landingpage-evergreen-hmstr-ai-306b1248.vercel.app';
+const configuredSiteUrl = process.env.SITE_URL;
+let siteUrl = defaultSiteUrl;
+
+if (configuredSiteUrl) {
+  try {
+    const parsedSiteUrl = new URL(configuredSiteUrl);
+
+    if (parsedSiteUrl.protocol === 'http:' || parsedSiteUrl.protocol === 'https:') {
+      siteUrl = parsedSiteUrl.toString().replace(/\/$/, '');
+    }
+  } catch {
+    // Keep the known-valid deployment URL when SITE_URL is malformed.
+  }
+}
+
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.SITE_URL ?? 'https://example.com',
+  site: siteUrl,
   trailingSlash: 'always',
   output: 'static',
   adapter: vercel({
