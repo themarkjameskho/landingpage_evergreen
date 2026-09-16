@@ -20,12 +20,16 @@ const dataset = firstNonEmpty(
   runtimeEnv.SANITY_API_DATASET,
   runtimeEnv.PUBLIC_SANITY_DATASET
 ) ?? 'production';
+const apiVersion = firstNonEmpty(
+  import.meta.env.SANITY_API_VERSION,
+  runtimeEnv.SANITY_API_VERSION
+) ?? '2024-05-12';
 const previewDrafts = (import.meta.env.SANITY_PREVIEW_DRAFTS ?? runtimeEnv.SANITY_PREVIEW_DRAFTS) === 'true'
   || (import.meta.env.DEV && Boolean(runtimeEnv.SANITY_API_TOKEN));
 const token = previewDrafts
   ? (import.meta.env.SANITY_API_READ_TOKEN ?? runtimeEnv.SANITY_API_READ_TOKEN ?? runtimeEnv.SANITY_API_TOKEN)
   : undefined;
-export const sanityClient = createClient({ projectId, dataset, apiVersion: import.meta.env.SANITY_API_VERSION ?? '2024-05-12', useCdn: !previewDrafts && import.meta.env.SANITY_USE_CDN !== 'false', perspective: previewDrafts ? 'drafts' : 'published', token });
+export const sanityClient = createClient({ projectId, dataset, apiVersion, useCdn: !previewDrafts && import.meta.env.SANITY_USE_CDN !== 'false', perspective: previewDrafts ? 'drafts' : 'published', token });
 const builder = projectId && dataset ? createImageUrlBuilder({ projectId, dataset }) : null;
 export function buildSanityImageUrl(image: SanityImage, options: { width: number; height?: number; quality?: number; fit?: 'crop' | 'clip' }) {
   if (!builder || !image?.asset?._ref) return undefined;
