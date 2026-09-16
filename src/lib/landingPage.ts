@@ -1,5 +1,5 @@
 import groq from 'groq';
-import { sanityClient } from './sanity';
+import { productionSanityClient, sanityClient } from './sanity';
 import type { LandingPage } from '../types/cms';
 
 const defaultLandingPageSlug = import.meta.env.SANITY_LANDING_PAGE_SLUG ?? 'landing-page';
@@ -12,5 +12,9 @@ const landingPageQuery = groq`*[_type == "page" && pageType == "landing-page" &&
 
 export async function getLandingPage(slug = defaultLandingPageSlug): Promise<LandingPage | null> {
   if (!sanityClient) return null;
-  return sanityClient.fetch<LandingPage | null>(landingPageQuery, { slug });
+  const page = await sanityClient.fetch<LandingPage | null>(landingPageQuery, { slug });
+  if (page) return page;
+  return productionSanityClient === sanityClient
+    ? null
+    : productionSanityClient.fetch<LandingPage | null>(landingPageQuery, { slug });
 }

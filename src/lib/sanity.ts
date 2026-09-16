@@ -29,7 +29,11 @@ const previewDrafts = (import.meta.env.SANITY_PREVIEW_DRAFTS ?? runtimeEnv.SANIT
 const token = previewDrafts
   ? (import.meta.env.SANITY_API_READ_TOKEN ?? runtimeEnv.SANITY_API_READ_TOKEN ?? runtimeEnv.SANITY_API_TOKEN)
   : undefined;
-export const sanityClient = createClient({ projectId, dataset, apiVersion, useCdn: !previewDrafts && import.meta.env.SANITY_USE_CDN !== 'false', perspective: previewDrafts ? 'drafts' : 'published', token });
+const clientOptions = { apiVersion, useCdn: !previewDrafts && import.meta.env.SANITY_USE_CDN !== 'false', perspective: previewDrafts ? 'drafts' as const : 'published' as const, token };
+export const sanityClient = createClient({ projectId, dataset, ...clientOptions });
+export const productionSanityClient = dataset === 'production'
+  ? sanityClient
+  : createClient({ projectId, dataset: 'production', ...clientOptions });
 const builder = projectId && dataset ? createImageUrlBuilder({ projectId, dataset }) : null;
 export function buildSanityImageUrl(image: SanityImage, options: { width: number; height?: number; quality?: number; fit?: 'crop' | 'clip' }) {
   if (!builder || !image?.asset?._ref) return undefined;
