@@ -3,8 +3,23 @@ import { createImageUrlBuilder } from '@sanity/image-url';
 import type { SanityImage } from '../types/cms';
 
 const runtimeEnv = (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
-const projectId = import.meta.env.SANITY_PROJECT_ID ?? runtimeEnv.SANITY_PROJECT_ID ?? 'led01j89';
-const dataset = import.meta.env.SANITY_DATASET ?? runtimeEnv.SANITY_DATASET ?? 'production';
+const firstNonEmpty = (...values: Array<string | undefined>) => values.find((value) => value?.trim());
+const projectId = firstNonEmpty(
+  import.meta.env.SANITY_PROJECT_ID,
+  import.meta.env.SANITY_API_PROJECT_ID,
+  import.meta.env.PUBLIC_SANITY_PROJECT_ID,
+  runtimeEnv.SANITY_PROJECT_ID,
+  runtimeEnv.SANITY_API_PROJECT_ID,
+  runtimeEnv.PUBLIC_SANITY_PROJECT_ID
+) ?? 'led01j89';
+const dataset = firstNonEmpty(
+  import.meta.env.SANITY_DATASET,
+  import.meta.env.SANITY_API_DATASET,
+  import.meta.env.PUBLIC_SANITY_DATASET,
+  runtimeEnv.SANITY_DATASET,
+  runtimeEnv.SANITY_API_DATASET,
+  runtimeEnv.PUBLIC_SANITY_DATASET
+) ?? 'production';
 const previewDrafts = (import.meta.env.SANITY_PREVIEW_DRAFTS ?? runtimeEnv.SANITY_PREVIEW_DRAFTS) === 'true'
   || (import.meta.env.DEV && Boolean(runtimeEnv.SANITY_API_TOKEN));
 const token = previewDrafts
