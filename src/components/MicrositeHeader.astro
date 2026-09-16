@@ -1,0 +1,55 @@
+---
+const { currentPath = '/' } = Astro.props as { currentPath?: string };
+const phone = '(479) 397-3936';
+const nav = [
+  { href: '/', label: 'Home' },
+  { href: '/bed-bug-treatment/', label: 'Bed Bug Treatment' },
+  { href: '/reviews/', label: 'Reviews' }
+];
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="site-header__brand" href="/" aria-label="EverGreen Bed Bug Exterminator home">
+      <img src="/images/evergreen-bed-bug-terminator-logo-white.png" alt="EverGreen Bed Bug Terminator" width="183" height="98" />
+    </a>
+    <nav class="site-header__nav" aria-label="Primary navigation">
+      {nav.map((item) => <a href={item.href} aria-current={currentPath === item.href ? 'page' : undefined}>{item.label}</a>)}
+    </nav>
+    <details class="mobile-menu">
+      <summary aria-label="Open navigation"><span class="hamburger" aria-hidden="true"><i></i><i></i><i></i></span></summary>
+      <nav aria-label="Mobile navigation">{nav.map((item) => <a href={item.href} aria-current={currentPath === item.href ? 'page' : undefined}>{item.label}</a>)}</nav>
+    </details>
+    <a class="site-header__call btn-primary" href="tel:+14793973936"><span>Call</span> {phone}</a>
+  </div>
+</header>
+
+<a class="mobile-sticky-call btn-secondary" href="tel:+14793973936">Call {phone}</a>
+
+<script>
+  const header = document.querySelector('.site-header');
+  if (header) {
+    const updateScrolledState = () => header.classList.toggle('site-header--scrolled', window.scrollY > 72);
+    updateScrolledState();
+    window.addEventListener('scroll', updateScrolledState, { passive: true });
+  }
+</script>
+
+<style>
+  .site-header { position:sticky; top:0; z-index:20; border-bottom:1px solid rgb(225 238 225 / .12); background:rgb(13 47 31 / .97); backdrop-filter:blur(16px); }
+  .site-header__inner { width:min(1320px, calc(100% - 3rem)); min-height:86px; margin:auto; display:grid; grid-template-columns:190px 1fr auto; align-items:center; gap:2rem; }
+  .site-header__brand { display:flex; align-items:center; width:146px; }
+  .site-header__brand img { display:block; width:146px; height:auto; }
+  .site-header__nav { display:flex; justify-content:center; gap:clamp(1.25rem, 3vw, 3.2rem); }
+  .site-header__nav a { position:relative; color:rgb(244 250 243 / .75); font-size:.86rem; font-weight:600; text-decoration:none; transition:color 180ms ease; }
+  .site-header__nav a::after { position:absolute; right:0; bottom:-.55rem; left:0; height:2px; background:var(--leaf); content:''; transform:scaleX(0); transform-origin:right; transition:transform 220ms ease; }
+  .site-header__nav a:hover, .site-header__nav a[aria-current='page'] { color:#c7e88b; }
+  .site-header__nav a:hover::after, .site-header__nav a[aria-current='page']::after { transform:scaleX(1); transform-origin:left; }
+  .mobile-menu { display:none !important; }
+  .site-header__call { justify-self:end; background:var(--leaf); color:#102d1e; box-shadow:0 10px 24px rgb(8 33 20 / .2); }
+  .site-header__call:hover { background:var(--leaf-light); color:#102d1e; }
+  .site-header__call .button-arrow { transition:transform 220ms cubic-bezier(.2,.8,.2,1); }
+  .site-header__call:hover .button-arrow { transform:translate(3px,-3px); }
+  .mobile-sticky-call { display:none !important; }
+  @media (max-width:900px) { .site-header__inner { width:min(100% - 1.5rem, 680px); min-height:72px; grid-template-columns:1fr auto; gap:.8rem; } .site-header__brand { width:116px; } .site-header__brand img { width:116px; } .site-header__nav { display:none; } .mobile-menu { display:block !important; position:relative; grid-column:2; grid-row:1; } .mobile-menu summary { display:grid; width:2.25rem; height:2.25rem; cursor:pointer; list-style:none; place-items:center; } .mobile-menu summary::-webkit-details-marker { display:none; } .hamburger { display:grid; width:1.35rem; gap:.24rem; } .hamburger i { display:block; height:2px; border-radius:999px; background:white; transition:transform 180ms ease,opacity 180ms ease; } .mobile-menu[open] .hamburger i:nth-child(1) { transform:translateY(.43rem) rotate(45deg); } .mobile-menu[open] .hamburger i:nth-child(2) { opacity:0; } .mobile-menu[open] .hamburger i:nth-child(3) { transform:translateY(-.43rem) rotate(-45deg); } .mobile-menu nav { position:absolute; top:calc(100% + .85rem); right:-.5rem; display:grid; min-width:210px; padding:.5rem; border:1px solid rgb(225 238 225 / .14); border-radius:18px 0 18px 0; background:var(--evergreen-950); box-shadow:0 18px 42px rgb(0 0 0 / .28); } .mobile-menu a { padding:.8rem; color:white; font-size:.9rem; font-weight:700; text-decoration:none; } .mobile-menu a[aria-current='page'] { color:var(--leaf-light); } .site-header__call { display:none !important; } .site-header--scrolled + .mobile-sticky-call { display:inline-flex !important; width:min(calc(100% - 2rem),680px); justify-content:center; position:fixed; bottom:1rem; left:50%; z-index:40; transform:translateX(-50%); box-shadow:0 12px 28px rgb(8 33 20 / .3); } }
+</style>

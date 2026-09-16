@@ -1,0 +1,119 @@
+---
+import type { LandingPage, LandingSection, SanityImage } from '../types/cms';
+import { buildSanityImageUrl } from '../lib/sanity';
+import LandingHero from './LandingHero.astro';
+
+const { page } = Astro.props as { page: LandingPage };
+const sections = page.sections ?? [];
+const byKey = (key: string) => sections.find((section) => section._key === key) as (LandingSection & Record<string, any>) | undefined;
+const hero = byKey('landing-hero');
+const why = byKey('why-evergreen');
+const proof = byKey('proof-points');
+const treatments = byKey('treatments');
+const spaces = byKey('spaces');
+const faq = byKey('faq');
+const financing = byKey('financing');
+const url = (image: SanityImage | undefined, width: number, height?: number) => image ? buildSanityImageUrl(image, { width, height, fit: height ? 'crop' : undefined, quality: 84 }) : undefined;
+const whyImage = url(why?.images?.[0], 1100, 1450);
+const financeImage = url(financing?.images?.[0], 900, 600);
+const iconUrl = (key?: string, label?: string) => {
+  const value = `${key ?? ''} ${label ?? ''}`.toLowerCase();
+  const icons: Record<string, string> = {
+    experience: 'calendar-check-2',
+    local: 'handshake',
+    discretion: 'shield-check',
+    technology: 'scan-search',
+    warranty: 'badge-check',
+    'same-day': 'clock-3',
+    residential: 'house',
+    commercial: 'building-2',
+    'heat-treatment': 'thermometer-sun',
+    'chemical-treatment': 'spray-can'
+  };
+  const treatmentIcon = value.includes('heat') ? 'thermometer-sun' : value.includes('chemical') ? 'spray-can' : undefined;
+  return `https://api.iconify.design/lucide:${treatmentIcon ?? icons[key ?? ''] ?? 'circle-check'}.svg?color=%231d5539&width=64&height=64`;
+};
+const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => block.children?.map((child: any) => child.text).filter(Boolean) ?? []).join(' ') ?? '';
+---
+
+<main id="main-content">
+  {hero && <LandingHero hero={hero as any} />}
+
+  {why && <section class="proof-story" aria-labelledby="why-heading">
+    {whyImage && <div class="proof-story__image"><img src={whyImage} alt={why.images?.[0]?.alt ?? ''} width="1100" height="1450" loading="lazy" /></div>}
+    <div class="proof-story__content">
+      <p class="kicker kicker--green">The EverGreen Difference</p>
+      <h2 id="why-heading">{why.title}</h2>
+      {why.subtitle && <p class="section-lede">{why.subtitle}</p>}
+      {proof?.items?.length && <div class="proof-grid">{proof.items.map((item: any) => <article><img class="proof-icon" src={iconUrl(item._key)} alt="" width="40" height="40" loading="lazy" /><div><h3>{item.label}</h3><p>{item.description}</p></div></article>)}</div>}
+    </div>
+  </section>}
+
+  {treatments?.items?.length && <section id="treatments" class="treatments" aria-labelledby="treatments-heading">
+    <div class="section-heading"><div><p class="kicker kicker--green">Our Specialized Treatments</p><h2 id="treatments-heading">Every Infestation Needs the Right Response.</h2></div>{treatments.subtitle && <p class="section-lede">{treatments.subtitle}</p>}</div>
+    <div class="treatment-bands">{treatments.items.map((item: any, index: number) => {
+      const image = url(item.image, 1800, 920);
+      return <article class:list={['treatment-band', index % 2 === 1 && 'treatment-band--reverse']}>
+        {image && <div class="treatment-band__image"><img src={image} alt={item.image?.alt ?? ''} width="1800" height="920" loading="lazy" /></div>}
+        <div class="treatment-band__copy"><img class="treatment-icon" src={iconUrl(item._key, item.label)} alt="" width="48" height="48" loading="lazy" /><h3>{item.label}</h3><p>{item.description}</p>{item.linkLabel && item.linkUrl && <a class="btn-primary treatment-cta" href={item.linkUrl}>{item.linkLabel}</a>}</div>
+      </article>;
+    })}</div>
+  </section>}
+
+  {spaces?.items?.length && <section class="spaces" aria-labelledby="spaces-heading">
+    <div class="section-heading section-heading--light"><div><p class="kicker">Solutions for Every Space</p><h2 id="spaces-heading">Care That Fits the Place You Live or Work.</h2></div><p class="section-lede">Two service paths, one local team, and a plan shaped around the property.</p></div>
+    <div class="spaces-grid">{spaces.items.slice(0, 2).map((item: any) => {
+      const image = url(item.image, 1400, 900);
+      return <article class="space-card">
+        {image && <div class="space-card__image"><img src={image} alt={item.image?.alt ?? ''} width="1400" height="900" loading="lazy" /></div>}
+        <div class="space-copy"><h3>{item.label}</h3><p>{item.description}</p>{item.linkLabel && item.linkUrl && <a class="text-link text-link--light" href={item.linkUrl}>{item.linkLabel}</a>}</div>
+      </article>;
+    })}</div>
+  </section>}
+
+  {faq && <section class="faq-section" aria-labelledby="faq-heading">
+    <div class="faq-section__inner"><p class="kicker kicker--green">Questions answered</p><h2 id="faq-heading">{faq.heading ?? faq.title}</h2>{faq.description && <p class="section-lede">{faq.description}</p>}
+      <div class="faq-grid">{faq.faqs?.map((item: any) => <details><summary>{item.question}</summary><p>{item.answer}</p></details>)}</div>
+      {faq.buttonLabel && faq.buttonLink && <a class="btn-primary" href={faq.buttonLink}>{faq.buttonLabel}</a>}
+    </div>
+  </section>}
+
+  {financing && <section class="financing" aria-labelledby="financing-heading"><div class="financing__copy"><p class="kicker kicker--green">Payment options</p><h2 id="financing-heading">{financing.title}</h2><p>{financing.subtitle ?? blocksToText(financing.description)}</p>{financing.ctaLabel && financing.ctaLink && <a class="btn-primary" href={financing.ctaLink}>{financing.ctaLabel}</a>}</div>{financeImage && <img src={financeImage} alt={financing.images?.[0]?.alt ?? ''} width="900" height="600" loading="lazy" />}</section>}
+</main>
+
+<style>
+  .home-hero { position:relative; min-height:min(700px, calc(100dvh - 86px)); overflow:hidden; isolation:isolate; background:var(--hero-image, none) center/cover no-repeat, var(--evergreen-950); }
+  .home-hero__shade { position:absolute; inset:0; z-index:-1; background:var(--hero-overlay); }
+  .home-hero--darkGreen { --hero-overlay:radial-gradient(circle at 72% 25%, rgb(54 111 68 / .28), transparent 38%), linear-gradient(90deg, rgb(8 33 20 / .94), rgb(8 33 20 / .78), rgb(8 33 20 / .24)); }
+  .home-hero--evergreen { --hero-overlay:linear-gradient(90deg, rgb(21 60 41 / .9), rgb(29 85 57 / .68), rgb(165 207 99 / .18)); }
+  .home-hero--lightGreen { --hero-overlay:linear-gradient(90deg, rgb(237 244 234 / .94), rgb(237 244 234 / .7), rgb(199 232 139 / .26)); }
+  .home-hero--lightGreen .home-hero__content { color:var(--ink); }
+  .home-hero--lightGreen .home-hero__lede { color:var(--muted); }
+  .home-hero--lightGreen .kicker { color:var(--evergreen-800); }
+  .home-hero--lightGreen .btn-ghost { border-color:var(--evergreen-800); color:var(--evergreen-800); }
+  .home-hero--none { --hero-overlay:linear-gradient(90deg, rgb(8 33 20 / .35), rgb(8 33 20 / .1), transparent); }
+  .home-hero__inner { width:min(1320px, calc(100% - 3rem)); min-height:inherit; display:grid; grid-template-columns:minmax(0, 1fr) minmax(360px, .85fr); align-items:stretch; margin:auto; }
+  .home-hero__content { align-self:center; padding:clamp(3rem, 6vw, 5rem) 0; color:white; }
+  .home-hero__visual { display:flex; min-height:inherit; align-items:flex-end; justify-content:center; }
+  .home-hero__visual img { display:block; width:min(100%, 620px); height:100%; object-fit:contain; object-position:center bottom; }
+  .kicker { margin-bottom:1rem; color:rgb(240 250 239 / .76); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+  .kicker--green { color:#477e44; }
+  h1 { max-width:680px; margin-bottom:1.25rem; font-size:clamp(3rem, 5.5vw, 5.35rem); line-height:.96; letter-spacing:-.065em; }
+  .home-hero__lede { max-width:620px; margin-bottom:2rem; color:rgb(255 255 255 / .87); font-size:clamp(1.05rem, 1.7vw, 1.25rem); }
+  .button-row { display:flex; flex-wrap:wrap; gap:.75rem; }
+  .proof-story { display:grid; grid-template-columns:minmax(0, .85fr) minmax(0, 1.15fr); background:white; }.proof-story__image { min-height:520px; }.proof-story__image img { width:100%; height:100%; object-fit:cover; }.proof-story__content { padding:clamp(3rem, 5vw, 5rem) clamp(1.5rem, 5vw, 6rem); }.proof-story h2,.section-heading h2,.faq-section h2,.financing h2 { max-width:680px; margin-bottom:1rem; font-size:clamp(2.25rem, 4.5vw, 4.45rem); line-height:.99; letter-spacing:-.055em; }.section-lede { max-width:640px; color:var(--muted); font-size:1.05rem; }.proof-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0 1.5rem; margin-top:2rem; }.proof-grid article { display:grid; grid-template-columns:auto 1fr; gap:.8rem; min-height:120px; padding:1.2rem 0; border-top:1px solid var(--line); }.proof-icon { display:block; width:2.25rem; height:2.25rem; border:0; border-radius:0; background:transparent; object-fit:contain; }.proof-grid h3 { margin-bottom:.35rem; font-size:1rem; }.proof-grid p { margin:0; color:var(--muted); font-size:.86rem; line-height:1.45; }
+  .treatments { padding:clamp(4rem, 7vw, 6rem) 0; background:var(--mist); }.section-heading { width:min(1320px, calc(100% - 3rem)); display:grid; grid-template-columns:minmax(0, 1fr) minmax(280px, .8fr); align-items:end; gap:4rem; margin:0 auto clamp(2rem, 4vw, 3.5rem); }.treatment-bands { width:min(1320px, calc(100% - 3rem)); margin:auto; display:grid; gap:1.25rem; }.treatment-band { display:grid; grid-template-columns:1.15fr .85fr; min-height:360px; background:white; overflow:hidden; border-radius:0 56px 0 56px; }.treatment-band--reverse { grid-template-columns:.85fr 1.15fr; border-radius:56px 0 56px 0; }.treatment-band--reverse .treatment-band__image { order:2; }.treatment-band__image img { width:100%; height:100%; min-height:360px; object-fit:cover; }.treatment-band__copy { display:block; align-content:center; padding:clamp(2rem, 4vw, 4rem); }.treatment-band__copy h3 { margin:.7rem 0 .8rem; font-size:clamp(1.75rem, 2.7vw, 2.7rem); line-height:1; letter-spacing:-.04em; }.treatment-band__copy p { color:var(--muted); }.treatment-index { color:#477e44; font-size:.75rem; font-weight:800; letter-spacing:.12em; }.text-link { display:inline-flex; align-items:center; gap:.55rem; margin-top:.5rem; padding:.72rem 1rem; border:1px solid #8aa888; border-radius:999px; color:var(--evergreen-800); font-weight:800; text-decoration:none; transition:gap 180ms ease,background 180ms ease; }.text-link:hover { gap:.9rem; background:var(--mist); }
+  .treatment-icon { width:3rem; height:3rem; padding:0; border:0; border-radius:0; background:transparent; object-fit:contain; }.treatment-cta { margin-top:.5rem; }
+  .spaces { padding:clamp(4rem, 7vw, 6rem) 0; background:var(--evergreen-950); color:white; }.section-heading--light h2 { color:white; }.section-heading--light .section-lede { color:rgb(240 250 239 / .7); }.spaces-grid { width:min(1320px, calc(100% - 3rem)); margin:auto; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:1.5rem; }.space-card { overflow:hidden; border:1px solid rgb(199 232 139 / .24); border-radius:28px 0 28px 0; background:#f8faf6; color:var(--ink); box-shadow:0 18px 40px rgb(0 0 0 / .16); }.space-card__image { position:relative; height:clamp(260px, 27vw, 390px); overflow:hidden; }.space-card__image img { width:100%; height:100%; object-fit:cover; transition:transform 500ms cubic-bezier(.2,.8,.2,1); }.space-card:hover .space-card__image img { transform:scale(1.04); }.space-card__image span { position:absolute; top:1.25rem; right:1.25rem; display:grid; width:2.6rem; height:2.6rem; place-items:center; border:1px solid rgb(255 255 255 / .7); border-radius:50%; background:rgb(13 47 31 / .78); color:white; font-size:.72rem; font-weight:800; }.space-copy { min-height:245px; display:flex; flex-direction:column; justify-content:center; padding:clamp(1.75rem, 3vw, 3rem); background:#f8faf6; }.space-copy h3 { margin-bottom:.7rem; color:var(--evergreen-950); font-size:clamp(1.7rem, 3vw, 2.8rem); line-height:1; letter-spacing:-.045em; }.space-copy p { max-width:none; margin-bottom:1.25rem; color:var(--muted); }.text-link--light { border-color:#8aa888; color:var(--evergreen-800); align-self:flex-start; }.text-link--light:hover { background:var(--mist); }
+  .faq-section { background:white; }.faq-section__image { display:block; width:100%; height:clamp(150px, 18vw, 280px); object-fit:cover; filter:saturate(.72); }.faq-section__inner { width:min(1320px, calc(100% - 3rem)); padding:clamp(4rem, 7vw, 6rem) 0; margin:auto; }.faq-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0 3rem; margin:2rem 0 2.5rem; }.faq-grid details { padding:1.15rem 0; border-bottom:1px solid var(--line); }.faq-grid summary { display:flex; gap:1rem; cursor:pointer; font-size:1.04rem; font-weight:800; }.faq-grid summary span { color:#477e44; font-size:.75rem; letter-spacing:.08em; }.faq-grid p { margin:1rem 1rem .2rem 1.8rem; color:var(--muted); }
+  .financing { width:min(1240px, calc(100% - 2.5rem)); display:grid; grid-template-columns:1fr minmax(340px, .82fr); min-height:410px; margin:clamp(4rem, 8vw, 7rem) auto; overflow:hidden; border-radius:0 56px 0 56px; background:var(--mist); box-shadow:0 20px 60px rgb(8 33 20 / .08); }.financing__copy { display:grid; align-content:center; padding:clamp(2rem, 6vw, 5.5rem); }.financing__copy > p:not(.kicker) { max-width:48ch; color:var(--muted); }.financing__copy > .btn-primary { justify-self:start; width:max-content; }.financing img { width:100%; height:100%; object-fit:cover; }
+  @media (max-width:800px) { .home-hero { min-height:650px; }.home-hero__inner { grid-template-columns:1fr; width:min(100% - 1.5rem, 680px); }.home-hero__content { padding:4.5rem 0 2rem; }.home-hero__visual { min-height:360px; }.home-hero__visual img { height:360px; }.proof-story,.treatment-band,.treatment-band--reverse,.financing { grid-template-columns:1fr; }.proof-story__image { min-height:0; aspect-ratio:4 / 3; }.proof-story__content { order:-1; padding:2.5rem 1.25rem 2rem; }.proof-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); }.treatment-band--reverse .treatment-band__image { order:0; }.treatment-band__image img { min-height:300px; }.spaces-grid { grid-template-columns:1fr; grid-template-areas:'image-a' 'copy-a' 'image-b' 'copy-b'; }.space-copy { min-height:0; padding:1rem 1.25rem 1.1rem; justify-content:flex-start; }.space-copy h3 { margin-bottom:.4rem; }.space-copy p { margin-bottom:.75rem; }.faq-grid { grid-template-columns:1fr; }.financing img { min-height:280px; }.section-heading,.treatment-bands,.spaces-grid,.financing { width:min(100% - 1.5rem, 680px); }.section-heading { grid-template-columns:1fr; gap:1rem; } }
+  @media (max-width:560px) { .proof-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 .8rem; }.proof-grid article { grid-template-columns:1fr; gap:.45rem; min-height:0; padding:1rem 0; }.proof-icon { width:2rem; height:2rem; }.button-row > a { width:100%; } }
+  .treatments .section-heading { width:min(1320px,calc(100% - 3rem)); max-width:none; padding:0; display:block; text-align:center; }.treatments .section-heading > div { margin-inline:auto; }.treatments .section-heading h2 { max-width:900px; margin-inline:auto; }.treatments .section-heading .section-lede { max-width:680px; margin:1rem auto 0; }
+  .space-copy { text-align:left; }
+  .space-copy p { margin-left:0; margin-right:0; }
+  .spaces .section-heading { display:block; text-align:center; }.spaces .section-heading > div { margin-inline:auto; }.spaces .section-heading h2 { max-width:900px; margin-inline:auto; }.spaces .section-heading .section-lede { max-width:680px; margin:1rem auto 0; }
+  .financing { width:min(1320px,calc(100% - 3rem)); }
+  @media (max-width:960px) and (min-width:801px) { .proof-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.section-heading { gap:2rem; }.financing { grid-template-columns:1fr minmax(280px,.8fr); } }
+  @media (max-width:800px) { .financing { width:min(100% - 1.5rem,680px); } }
+</style>

@@ -1,0 +1,52 @@
+---
+import type { LandingPage, SanityImage } from '../types/cms';
+import { buildSanityImageUrl } from '../lib/sanity';
+import LandingHero from './LandingHero.astro';
+const { page } = Astro.props as { page: LandingPage };
+const sections = page.sections ?? [];
+const byKey = (key: string) => sections.find((section) => section._key === key) as Record<string, any> | undefined;
+const hero = byKey('treatment-hero');
+const heat = byKey('heat-treatment');
+const heatBenefits = byKey('heat-benefits');
+const chemical = byKey('chemical-treatment');
+const chemicalBenefits = byKey('chemical-benefits');
+const image = (value: SanityImage | undefined, width: number, height: number) => value ? buildSanityImageUrl(value, { width, height, fit:'crop', quality:84 }) : undefined;
+const heatImage = image(heat?.images?.[0] ?? heat?.sideImage, 1800, 820);
+const chemicalImage = image(chemical?.images?.[0] ?? chemical?.sideImage, 1100, 1350);
+const iconUrl = (key?: string) => {
+  const icons: Record<string, string> = {
+    eco: 'leaf',
+    penetration: 'crosshair',
+    turnaround: 'timer',
+    single: 'check-circle-2',
+    protection: 'shield-check',
+    budget: 'badge-dollar-sign',
+    strategic: 'scan-search',
+    safety: 'heart-handshake'
+  };
+  return `https://api.iconify.design/lucide:${icons[key ?? ''] ?? 'circle-check'}.svg?color=%23a5cf63&width=64&height=64`;
+};
+const body = (section: any) => section?.description?.flatMap((block: any) => block.children?.map((child: any) => child.text).filter(Boolean) ?? []).join(' ') ?? section?.subtitle ?? '';
+---
+
+<main id="main-content">
+  {hero && <LandingHero hero={hero as any} eyebrow="Bed Bug Treatment" />}
+  {heat && <section class="heat-section"><div class="heat-section__copy"><p class="kicker kicker--green">Heat Treatment</p><h2>{heat.title}</h2><p>{body(heat)}</p></div>{heatImage && <img src={heatImage} alt={heat.images?.[0]?.alt ?? heat.sideImage?.alt ?? ''} width="1800" height="820" loading="lazy" />}</section>}
+  {heatBenefits?.items?.length && <section class="benefits"><div class="benefits__head"><p class="kicker kicker--green">Why Heat Works</p><h2>{heatBenefits.title}</h2></div><div class="benefits__grid">{heatBenefits.items.map((item: any) => <article><img src={iconUrl(item._key)} alt="" width="56" height="56" loading="lazy" /><div><h3>{item.label}</h3><p>{item.description}</p></div></article>)}</div></section>}
+  {chemical && <section class="chemical"><div class="chemical__copy"><p class="kicker">Targeted Protection</p><h2>{chemical.title}</h2><p>{body(chemical)}</p>{chemical.ctaLabel && chemical.ctaLink && <a class="btn-secondary" href={chemical.ctaLink}>{chemical.ctaLabel}</a>}</div>{chemicalImage && <img src={chemicalImage} alt={chemical.images?.[0]?.alt ?? chemical.sideImage?.alt ?? ''} width="1100" height="1350" loading="lazy" />}</section>}
+  {chemicalBenefits?.items?.length && <section class="benefits benefits--quiet"><div class="benefits__head"><p class="kicker kicker--green">Protection That Lasts</p><h2>{chemicalBenefits.title}</h2></div><div class="benefits__grid">{chemicalBenefits.items.map((item: any) => <article><img src={iconUrl(item._key)} alt="" width="56" height="56" loading="lazy" /><div><h3>{item.label}</h3><p>{item.description}</p></div></article>)}</div></section>}
+</main>
+
+<style>
+  .treatment-hero { min-height:600px; display:grid; align-items:end; background:linear-gradient(90deg,rgb(8 33 20 / .93),rgb(8 33 20 / .6),rgb(8 33 20 / .08)), var(--hero-image) center/cover no-repeat; color:white; }.treatment-hero__copy { width:min(1320px, calc(100% - 3rem)); padding:6rem 0; margin:auto; }.kicker { margin-bottom:1rem; color:rgb(240 250 239 / .76); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }.kicker--green { color:#477e44; }.treatment-hero h1 { max-width:720px; margin-bottom:1rem; font-size:clamp(3rem,6vw,5.5rem); line-height:.97; letter-spacing:-.065em; }.treatment-hero p:not(.kicker) { max-width:570px; color:rgb(255 255 255 / .84); font-size:1.1rem; }.button { display:inline-flex; min-height:48px; align-items:center; padding:.78rem 1rem; border-radius:999px; background:var(--leaf); color:#102d1e; font-size:.9rem; font-weight:800; text-decoration:none; transition:transform 170ms ease,background 170ms ease; }.button:hover { background:var(--leaf-light); transform:translateY(-2px); }.button:active { transform:translateY(1px); }.heat-section { padding-top:clamp(4rem,8vw,7rem); background:white; }.heat-section__copy { width:min(820px,calc(100% - 2.5rem)); padding-bottom:clamp(2rem,5vw,4rem); margin:auto; }.heat-section h2,.benefits h2,.chemical h2 { max-width:720px; margin-bottom:1rem; font-size:clamp(2.25rem,4.5vw,4.4rem); line-height:.99; letter-spacing:-.055em; }.heat-section__copy p:not(.kicker),.benefits p { color:var(--muted); }.heat-section > img { display:block; width:100%; height:clamp(310px,45vw,680px); object-fit:cover; }.benefits { width:min(1240px,calc(100% - 2.5rem)); padding:clamp(4rem,8vw,7rem) 0; margin:auto; }.benefits__head { max-width:700px; margin-bottom:2.5rem; }.benefits__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }.benefits article { min-height:190px; padding:clamp(1.5rem,3vw,2.5rem); background:var(--paper); }.benefits h3 { margin-bottom:.6rem; font-size:1.28rem; }.benefits p { margin:0; }.benefits--quiet { background:var(--mist); }.chemical { display:grid; grid-template-columns:1fr 1fr; background:var(--evergreen-950); color:white; }.chemical__copy { display:grid; align-content:center; padding:clamp(3rem,7vw,7rem); }.chemical__copy p:not(.kicker) { max-width:50ch; color:rgb(240 250 239 / .76); }.chemical > img { width:100%; height:100%; min-height:590px; object-fit:cover; }.button--leaf { margin-top:1rem; }
+  .heat-section { width:min(1320px,calc(100% - 3rem)); display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:clamp(2rem,5vw,6rem); padding:clamp(5rem,8vw,8rem) 0; margin:auto; background:var(--paper); align-items:center; }.heat-section__copy { width:auto; padding:0; margin:0; }.heat-section > img { width:100%; height:clamp(360px,42vw,600px); border-radius:0 64px 0 64px; object-fit:cover; }.benefits { width:100%; padding:clamp(5rem,8vw,7rem) max(1.5rem,calc((100% - 1320px)/2)); margin:0; background:var(--evergreen-950); color:white; }.benefits--quiet { background:var(--mist); color:var(--ink); }.benefits__head { max-width:760px; margin-bottom:2.5rem; }.benefits h2 { color:inherit; }.benefits__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 3rem; background:transparent; border:0; }.benefits article { display:grid; grid-template-columns:56px 1fr; gap:1.2rem; min-height:150px; padding:1.5rem 0; border-top:1px solid rgb(255 255 255 / .22); background:transparent; }.benefits--quiet article { border-color:var(--line); }.benefits article img { width:42px; height:42px; padding:0; border:0; border-radius:0; background:transparent; object-fit:contain; }.benefits h3 { color:inherit; }.benefits p { color:inherit; opacity:.75; }.chemical__copy .btn-secondary { margin-top:1rem; }
+  @media(max-width:800px) { .treatment-hero { min-height:580px; }.treatment-hero__copy { width:min(100% - 1.5rem,680px); padding:4.5rem 0; }.heat-section { width:min(100% - 1.5rem,680px); grid-template-columns:1fr; gap:2rem; }.heat-section > img { height:360px; border-radius:0 40px 0 40px; }.chemical { grid-template-columns:1fr; }.chemical > img { min-height:360px; }.benefits__grid { grid-template-columns:1fr; } }
+  .chemical__copy > .btn-secondary { justify-self:start; width:max-content; }
+  /* The benefits section already owns the deep green surface; the chemical treatment follows with a lighter brand panel for visual separation. */
+  .chemical { width:min(1320px,calc(100% - 3rem)); margin:clamp(2rem,5vw,4rem) auto 0; border-radius:0 64px 0 64px; overflow:hidden; background:var(--mist); color:var(--ink); }
+  .chemical .kicker { color:#477e44; }
+  .chemical__copy p:not(.kicker) { color:var(--muted); }
+  .chemical__copy > .btn-secondary { justify-self:start; width:max-content; }
+  @media(max-width:800px) { .chemical { width:min(100% - 1.5rem,680px); border-radius:0 40px 0 40px; } }
+  .benefits.benefits--quiet { background:var(--paper); }
+</style>

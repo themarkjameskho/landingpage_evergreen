@@ -1,0 +1,15 @@
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <img src="/images/evergreen-bed-bug-terminator-logo-white.png" alt="EverGreen Bed Bug Terminator" width="183" height="98" />
+    <div><strong>Serving Northwest Arkansas and the Arkansas River Valley</strong><a href="tel:+14793973936">(479) 397-3936</a></div>
+    <p>Copyright © {new Date().getFullYear()} EverGreen Bed Bug Exterminator</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer { padding:3rem 0; background:#0d2f1f; color:#eaf4e8; }
+  .site-footer__inner { width:min(1240px, calc(100% - 2.5rem)); margin:auto; display:grid; grid-template-columns:170px 1fr auto; align-items:center; gap:2rem; }
+  img { width:140px; height:auto; }
+  strong, a { display:block; } strong { font-size:.95rem; } a { margin-top:.4rem; color:#c7e88b; font-weight:800; text-decoration:none; } p { margin:0; color:rgb(234 244 232 / .62); font-size:.82rem; }
+  @media (max-width:900px) { .site-footer__inner { grid-template-columns:1fr; gap:1.25rem; } }
+</style>

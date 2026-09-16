@@ -1,0 +1,13 @@
+---
+interface Props { brand?: string; callLabel?: string; callLink?: string; }
+const { brand = 'EverGreen', callLabel, callLink } = Astro.props;
+---
+<header><div class="shell inner"><a class="brand" href="#main-content">{brand}</a>{callLabel && callLink && <a class="call" href={callLink}>{callLabel}</a>}</div></header>
+<style>
+  header { background: var(--surface); border-bottom: 1px solid var(--line); }
+  .inner { min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .brand { color: var(--ink); font-weight: 800; letter-spacing: -.03em; text-decoration: none; }
+  .call { color: var(--forest); font-size: .95rem; font-weight: 800; text-decoration: none; white-space: nowrap; }
+  .call:hover { text-decoration: underline; }
+  @media (max-width: 520px) { .inner { min-height: 62px; } }
+</style>

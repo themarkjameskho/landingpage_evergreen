@@ -1,0 +1,16 @@
+---
+export const prerender = false;
+import LandingLayout from '../../layouts/LandingLayout.astro';
+import MicrositeFooter from '../../components/MicrositeFooter.astro';
+import MicrositeHeader from '../../components/MicrositeHeader.astro';
+import ReviewsPage from '../../components/ReviewsPage.astro';
+import { getLandingPage } from '../../lib/landingPage';
+const page = await getLandingPage('landing-reviews');
+const title = page?.seo?.seoTitle ?? 'Customer Reviews | EverGreen Bed Bug Exterminator';
+const description = page?.seo?.seoDescription;
+---
+<LandingLayout title={title} description={description}>
+  <MicrositeHeader currentPath="/reviews/" />
+  <ReviewsPage page={page ?? {}} />
+  <MicrositeFooter />
+</LandingLayout>

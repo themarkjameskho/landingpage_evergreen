@@ -1,0 +1,27 @@
+---
+import type { LandingPage } from '../types/cms';
+import LandingHero from './LandingHero.astro';
+const { page } = Astro.props as { page: LandingPage };
+const intro = page.sections?.find((section) => section._key === 'reviews-intro') as Record<string, any> | undefined;
+const reviewEmbed = page.sections?.find((section) => section._type === 'htmlSection') as { htmlContent?: string } | undefined;
+const reviewEmbedHtml = reviewEmbed?.htmlContent?.replace(/\sdata-romw-lazy(?=[\s>])/g, '');
+---
+
+<main id="main-content" class="reviews">
+  {intro && <LandingHero hero={intro as any} eyebrow="EverGreen Bed Bug Exterminator" />}
+  <section class="reviews__body">
+    <h2>{intro?.heading ?? "Our Customer's Feedback is Valued."}</h2>
+    <section class="reviews__embed" aria-label="Customer reviews">
+      {reviewEmbedHtml ? <div class="reviews__embed-code" set:html={reviewEmbedHtml}></div> : <div class="reviews__embed-placeholder">
+        <!-- The approved review provider HTML is managed in Sanity as an HTML Section. -->
+        <p>Approved review content will appear here.</p>
+        <p>Add the provider code to the Reviews page’s HTML Section.</p>
+      </div>}
+    </section>
+    <a class="btn-primary" href="tel:+14793973936">Call (479) 397-3936</a>
+  </section>
+</main>
+
+<style>
+  .reviews__hero { min-height:440px; display:grid; align-items:end; padding:4rem 1.25rem; background:radial-gradient(circle at 80% 10%, rgb(96 148 81 / .42),transparent 34%),var(--evergreen-950); color:white; }.reviews__hero > div,.reviews__body { width:min(1320px,calc(100% - 3rem)); margin:auto; }.kicker { margin-bottom:1rem; color:rgb(240 250 239 / .74); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }.reviews h1 { max-width:700px; margin-bottom:1rem; font-size:clamp(3rem,6vw,5.5rem); line-height:.97; letter-spacing:-.065em; }.reviews__hero p:not(.kicker) { max-width:510px; color:rgb(255 255 255 / .8); font-size:1.08rem; }.reviews__body { padding:clamp(4rem,8vw,7rem) 0; text-align:center; }.reviews__body h2 { max-width:600px; margin:0 auto; font-size:clamp(2rem,4vw,3.7rem); line-height:1; letter-spacing:-.05em; }.reviews__embed { width:min(1100px,100%); min-height:320px; display:grid; place-items:center; margin:2.5rem auto; padding:clamp(1.25rem,3vw,3rem); border:1px solid rgb(29 85 57 / .16); border-radius:1.5rem; background:white; box-shadow:0 18px 48px rgb(8 33 20 / .08); }.reviews__embed-code { width:100%; }.reviews__embed-placeholder { width:100%; min-height:220px; display:grid; place-content:center; padding:2rem; border:1px dashed #9ab09a; background:var(--mist); text-align:center; }.reviews__embed-placeholder p { max-width:58ch; margin:.25rem auto; color:var(--muted); }.reviews__body > .btn-primary { display:flex; width:max-content; margin:0 auto; }.button { display:inline-flex; min-height:48px; align-items:center; padding:.78rem 1rem; border-radius:999px; background:var(--evergreen-900); color:white; font-size:.9rem; font-weight:800; text-decoration:none; }
+</style>
