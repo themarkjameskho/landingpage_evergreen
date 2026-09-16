@@ -4,6 +4,7 @@ import vercel from '@astrojs/vercel';
 
 const defaultSiteUrl = 'https://landingpage-evergreen-hmstr-ai-306b1248.vercel.app';
 const configuredSiteUrl = process.env.SITE_URL;
+const configuredWebhookSecret = process.env.SANITY_WEBHOOK_SECRET;
 let siteUrl = defaultSiteUrl;
 
 if (configuredSiteUrl) {
@@ -26,7 +27,9 @@ export default defineConfig({
   adapter: vercel({
     isr: {
       expiration: 60,
-      bypassToken: process.env.SANITY_WEBHOOK_SECRET
+      ...(configuredWebhookSecret && configuredWebhookSecret.length >= 32
+        ? { bypassToken: configuredWebhookSecret }
+        : {})
     }
   }),
   image: {
