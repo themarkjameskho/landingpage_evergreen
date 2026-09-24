@@ -1,15 +1,17 @@
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <img src="/images/evergreen-bed-bug-terminator-logo-white.png" alt="EverGreen Bed Bug Terminator" width="183" height="98" />
-    <div><strong>Serving Northwest Arkansas and the Arkansas River Valley</strong><a href="tel:+14793973936">(479) 397-3936</a></div>
+    <div class="site-footer__brand"><img src="/images/evergreen-bed-bug-terminator-logo-white.png" alt="EverGreen Bed Bug Terminator" width="183" height="98" /><strong>Serving Northwest Arkansas and the Arkansas River Valley</strong><a href="tel:+14793973936">(479) 397-3936</a></div>
+    <nav aria-label="Footer navigation"><span>Explore</span><a href="/">Home</a><a href="/bed-bug-treatment/">Bed Bug Treatment</a><a href="/reviews/">Reviews</a></nav>
     <p>Copyright © {new Date().getFullYear()} EverGreen Bed Bug Exterminator</p>
   </div>
 </footer>
 
 <style>
-  .site-footer { padding:3rem 0; background:#0d2f1f; color:#eaf4e8; }
-  .site-footer__inner { width:min(1240px, calc(100% - 2.5rem)); margin:auto; display:grid; grid-template-columns:170px 1fr auto; align-items:center; gap:2rem; }
-  img { width:140px; height:auto; }
-  strong, a { display:block; } strong { font-size:.95rem; } a { margin-top:.4rem; color:#c7e88b; font-weight:800; text-decoration:none; } p { margin:0; color:rgb(234 244 232 / .62); font-size:.82rem; }
-  @media (max-width:900px) { .site-footer__inner { grid-template-columns:1fr; gap:1.25rem; } }
+  .site-footer { padding:4rem 0 2rem; background:#0d2f1f; color:#eaf4e8; }
+  .site-footer__inner { width:min(1180px, calc(100% - 3rem)); margin:auto; display:grid; grid-template-columns:minmax(0,2fr) minmax(160px,1fr); gap:3rem; }
+  img { width:140px; height:auto; margin-bottom:1rem; }
+  strong, a { display:block; } strong { max-width:32ch;font-size:.9rem; } a { margin-top:.4rem; color:#c7e88b; font-weight:800; text-decoration:none; }
+  nav{display:flex;flex-direction:column;align-items:flex-start}nav span{margin-bottom:.6rem;color:rgb(234 244 232 / .55);font-size:.7rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}nav a{margin:.35rem 0;color:#eaf4e8;font-size:.9rem;font-weight:600}
+  p { grid-column:1/-1;margin:0;padding-top:1.5rem;border-top:1px solid rgb(225 238 225 / .16);color:rgb(234 244 232 / .62); font-size:.82rem; }
+  @media (max-width:600px) { .site-footer__inner { width:min(100% - 1.5rem,520px);grid-template-columns:1fr; gap:2rem; } }
 </style>
