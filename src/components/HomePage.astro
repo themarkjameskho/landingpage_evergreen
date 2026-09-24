@@ -2,6 +2,7 @@
 import type { LandingPage, LandingSection, SanityImage } from '../types/cms';
 import { buildSanityImageUrl } from '../lib/sanity';
 import LandingHero from './LandingHero.astro';
+import CallCard from './CallCard.astro';
 
 const { page } = Astro.props as { page: LandingPage };
 const sections = page.sections ?? [];
@@ -32,6 +33,7 @@ const iconUrl = (key?: string, label?: string) => {
   return `https://api.iconify.design/lucide:${icon}.svg?color=%231d5539&width=64&height=64`;
 };
 const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => block.children?.map((child: any) => child.text).filter(Boolean) ?? []).join(' ') ?? '';
+const marqueeItems = ['Heat Treatment', '90 Day Warranty', 'Locally Owned & Operated', 'Total Discretion', 'Eco-Friendly', 'Same Day Service'];
 ---
 
 <main id="main-content">
@@ -55,6 +57,15 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
     </article>)}</div>}
   </section>}
 
+  <section class="process-section" aria-labelledby="process-heading"><div class="section-wrap">
+    <div class="section-head"><div><p class="kicker">How EverGreen Helps</p><h2 id="process-heading">A Clear Path to a Restful Home.</h2></div><p class="section-lede">From your first call to the right treatment, our local team helps you take the next step.</p></div>
+    <div class="process-grid">
+      <article><span>01</span><h3>Call EverGreen</h3><p>Tell our team what you are seeing and where you need help.</p></article>
+      <article><span>02</span><h3>Explore Your Options</h3><p>Learn about heat and chemical treatment for your space.</p></article>
+      <article><span>03</span><h3>Choose Your Treatment</h3><p>Move forward with a plan shaped around your property.</p></article>
+    </div>
+  </div></section>
+
   {heatItem && <section class="feature-section" aria-labelledby="feature-heading">
     <div class="feature-panel section-wrap">
       <div class="feature-panel__copy">
@@ -66,6 +77,10 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
       {heatItem.image && <div class="feature-panel__image"><img src={url(heatItem.image, 1100, 900)} alt={heatItem.image.alt ?? ''} width="1100" height="900" loading="lazy" /></div>}
     </div>
   </section>}
+
+  <div class="benefits-marquee" aria-label="EverGreen service highlights"><div class="benefits-marquee__track">
+    {[0, 1].map((copy) => <div class="benefits-marquee__group" aria-hidden={copy === 1 ? 'true' : undefined}>{marqueeItems.map((item) => <span><i aria-hidden="true">✦</i>{item}</span>)}</div>)}
+  </div></div>
 
   {whyImage && <section class="story-section section-wrap" aria-labelledby="story-heading">
     <div class="story-section__copy">
@@ -91,6 +106,13 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
     </div>
   </section>}
 
+  <section class="reviews-band" aria-labelledby="reviews-heading"><div class="section-wrap">
+    <div class="section-head"><div><p class="kicker">Customer Reviews</p><h2 id="reviews-heading">Hear From Our Neighbors.</h2></div><p class="section-lede">Read what customers are sharing about their experience with EverGreen.</p></div>
+    <a class="reviews-band__card" href="/reviews/"><span class="reviews-band__icon" aria-hidden="true">“</span><span><strong>EverGreen customer reviews</strong><small>See feedback from the communities we serve.</small></span><span class="reviews-band__arrow" aria-hidden="true">→</span></a>
+  </div></section>
+
+  <section class="service-area" aria-label="Service area"><div class="section-wrap"><div><p class="kicker">Service Area</p><h2>Serving Northwest Arkansas and the Arkansas River Valley.</h2></div><p>Local bed bug treatment for the places you live and work.</p></div></section>
+
   {spaceItems.length > 0 && <section class="spaces" aria-labelledby="spaces-heading">
     <div class="section-wrap">
       <div class="section-head"><div><p class="kicker">Solutions for Every Space</p><h2 id="spaces-heading">Care That Fits the Place You Live or Work.</h2></div><p class="section-lede">Two service paths, one local team, and a plan shaped around the property.</p></div>
@@ -115,6 +137,8 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
     <div class="closing-panel__copy"><p class="kicker">Payment options</p><h2 id="financing-heading">{financing.title}</h2><p>{financing.subtitle ?? blocksToText(financing.description)}</p>{financing.ctaLabel && financing.ctaLink && <a class="btn-secondary" href={financing.ctaLink}>{financing.ctaLabel} <span aria-hidden="true">↗</span></a>}</div>
     {financeImage && <div class="closing-panel__image"><img src={financeImage} alt={financing.images?.[0]?.alt ?? ''} width="1000" height="720" loading="lazy" /></div>}
   </div></section>}
+
+  <section class="final-cta section-wrap" aria-labelledby="final-cta-heading"><div><p class="kicker">Ready to get help?</p><h2 id="final-cta-heading">Sleep Soundly Again.</h2><p>We’ll handle the rest. Talk with your local EverGreen team.</p></div><CallCard /></section>
 </main>
 
 <style>
@@ -135,6 +159,12 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
   .proof-card img{display:block;width:40px;height:40px;margin-bottom:1.5rem}
   .proof-card h3{margin-bottom:.7rem;color:var(--evergreen-950);font-size:1.35rem}
   .proof-card p{max-width:36ch;margin:0;color:var(--muted);font-size:.91rem;line-height:1.55}
+  .process-section{padding:clamp(4.5rem,7vw,7rem) 0;background:#f1eee5}
+  .process-grid{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #dcd8cb}
+  .process-grid article{min-height:225px;padding:2rem 2.2rem 0;border-right:1px solid #dcd8cb}
+  .process-grid article:first-child{padding-left:0}.process-grid article:last-child{border-right:0}
+  .process-grid article>span{display:block;margin-bottom:.4rem;color:var(--evergreen-800);font-size:2rem;font-weight:800;letter-spacing:-.06em}
+  .process-grid h3{margin-bottom:.65rem;font-size:1.25rem}.process-grid p{max-width:31ch;margin:0;color:var(--muted);font-size:.88rem}
   .feature-section{padding:clamp(4rem,6vw,6rem) 0;background:var(--mist)}
   .feature-panel{display:grid;grid-template-columns:1fr .95fr;min-height:440px;overflow:hidden;border-radius:var(--radius);background:var(--evergreen-950);color:white}
   .feature-panel__copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(2.5rem,5vw,5rem)}
@@ -143,6 +173,13 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
   .feature-panel__copy>p:not(.kicker){max-width:48ch;color:rgb(255 255 255 / .82);font-size:1rem}
   .feature-link{display:inline-flex;gap:1rem;align-items:center;margin-top:1rem;padding-bottom:.25rem;border-bottom:1px solid var(--leaf-light);color:var(--leaf-light);font-weight:800;text-decoration:none}
   .feature-panel__image{min-height:440px;overflow:hidden}.feature-panel__image img{width:100%;height:100%;object-fit:cover}
+  .benefits-marquee{overflow:hidden;padding:1rem 0;border-block:1px solid rgb(255 255 255 / .14);background:var(--evergreen-950);color:white}
+  .benefits-marquee__track{width:max-content;display:flex;animation:benefits-scroll 42s linear infinite}
+  .benefits-marquee__group{display:flex;align-items:center;flex:none;gap:1.6rem;padding-right:1.6rem;white-space:nowrap}
+  .benefits-marquee__group span{display:flex;align-items:center;gap:1.6rem;font-size:1.05rem;font-weight:700}
+  .benefits-marquee__group i{color:var(--leaf);font-size:.85rem;font-style:normal}
+  @keyframes benefits-scroll{to{transform:translateX(-50%)}}
+  @media(prefers-reduced-motion:reduce){.benefits-marquee__track{animation:none}}
   .story-section{display:grid;grid-template-columns:1fr 1fr;gap:clamp(3rem,6vw,7rem);align-items:center;padding-block:clamp(4.5rem,7vw,7rem)}
   .story-section__copy{padding-left:clamp(0px,3vw,3rem)}.story-section__copy h2{margin-bottom:1.2rem}.story-section__copy>p:not(.kicker){max-width:48ch;color:var(--muted);font-size:1.05rem}
   .story-section__image{height:420px;overflow:hidden;border-radius:var(--radius)}.story-section__image img{width:100%;height:100%;object-fit:cover}
@@ -154,10 +191,16 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
   .treatment-card__icon{margin-bottom:1.5rem}.treatment-card--featured .treatment-card__icon{filter:brightness(0) invert(1)}.treatment-card h3{margin-bottom:.8rem;font-size:clamp(1.6rem,2.5vw,2.3rem)}
   .treatment-card p{max-width:50ch;margin:0 0 2rem;color:var(--muted);font-size:.96rem}.treatment-card--featured p{color:rgb(255 255 255 / .78)}
   .treatment-card__link{display:inline-flex;gap:1rem;margin-top:auto;padding-bottom:.2rem;border-bottom:1px solid currentColor;color:var(--evergreen-800);font-weight:800;text-decoration:none}.treatment-card--featured .treatment-card__link{color:var(--leaf-light)}
+  .reviews-band{padding:clamp(4.5rem,7vw,7rem) 0;background:white}
+  .reviews-band__card{display:flex;align-items:center;gap:1.5rem;min-height:132px;padding:1.6rem 2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);color:var(--evergreen-950);text-decoration:none;transition:transform .2s,box-shadow .2s}
+  .reviews-band__card:hover{transform:translateY(-2px);box-shadow:0 16px 35px rgb(13 47 31 / .1)}
+  .reviews-band__icon{font-size:3.5rem;line-height:1;color:var(--evergreen-800)}.reviews-band__card strong{display:block;font-size:1.4rem}.reviews-band__card small{display:block;color:var(--muted);font-size:.88rem}.reviews-band__arrow{margin-left:auto;font-size:1.7rem}
+  .service-area{padding:clamp(3rem,5vw,5rem) 0;background:#f1eee5}.service-area .section-wrap{display:grid;grid-template-columns:1fr .55fr;gap:3rem;align-items:end}.service-area h2{max-width:650px;font-size:clamp(2rem,3.5vw,3.6rem)}.service-area p:last-child{max-width:33ch;margin:0;color:var(--muted)}
   .spaces{padding:clamp(4.5rem,7vw,7rem) 0}.spaces-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
   .space-card{overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:#fff}.space-card__image{height:260px;overflow:hidden}.space-card__image img{width:100%;height:100%;object-fit:cover}.space-card__copy{min-height:195px;padding:2rem}.space-card h3{margin-bottom:.6rem;font-size:1.65rem}.space-card p{margin-bottom:.7rem;color:var(--muted);font-size:.93rem}.space-card a{color:var(--evergreen-800);font-weight:800;text-decoration:none}
   .faq-section{padding:clamp(4.5rem,7vw,7rem) 1.5rem;background:white}.faq-section__inner{width:min(760px,100%);margin:auto}.faq-section h2{margin-bottom:.6rem}.faq-list{margin:2rem 0}.faq-list details{border-bottom:1px solid var(--line)}.faq-list summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:70px;cursor:pointer;list-style:none;font-weight:800}.faq-list summary::-webkit-details-marker{display:none}.faq-toggle{flex:none;width:24px;height:24px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--evergreen-800)}.faq-toggle::before{content:'+'}.faq-list details[open] .faq-toggle{background:var(--evergreen-800);color:white}.faq-list details[open] .faq-toggle::before{content:'−'}.faq-list details p{max-width:65ch;margin:0 3rem 1.3rem 0;color:var(--muted);font-size:.94rem}.faq-call{display:inline-flex;gap:1rem;align-items:center;color:var(--evergreen-800);font-weight:800;text-decoration:none}
   .closing-section{padding:clamp(4rem,6vw,6rem) 0}.closing-panel{display:grid;grid-template-columns:1.05fr .95fr;min-height:380px;overflow:hidden;border-radius:var(--radius);background:var(--evergreen-950);color:white}.closing-panel__copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(2.5rem,5vw,5rem)}.closing-panel h2{margin-bottom:1rem;color:white}.closing-panel__copy>p:not(.kicker){max-width:48ch;color:rgb(255 255 255 / .8)}.closing-panel .btn-secondary{margin-top:1rem}.closing-panel__image{min-height:380px}.closing-panel__image img{width:100%;height:100%;object-fit:cover}
-  @media(max-width:900px){.section-head{grid-template-columns:1fr;gap:1rem}.trust-strip__inner{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(3){border-left:1px solid var(--line)}.trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.proof-cards{grid-template-columns:repeat(2,1fr)}.feature-panel,.closing-panel{grid-template-columns:1fr}.feature-panel__image,.closing-panel__image{height:330px;min-height:0}.story-section{grid-template-columns:1fr;gap:2rem}.story-section__copy{padding-left:0}.story-section__image{height:360px}}
-  @media(max-width:620px){.section-wrap,.trust-strip__inner{width:min(100% - 1.5rem,520px)}h2{font-size:clamp(2.35rem,10vw,3.5rem)}.trust-item{min-height:80px;padding:.8rem;font-size:.78rem}.trust-item img{width:24px;height:24px}.proof-cards,.treatment-grid,.spaces-grid{grid-template-columns:1fr}.proof-card{min-height:0}.feature-panel__copy,.closing-panel__copy{padding:2rem}.story-section__image{height:280px}.space-card__image{height:220px}.faq-section{padding-inline:.75rem}}
+  .final-cta{display:grid;grid-template-columns:1fr minmax(280px,420px);align-items:center;gap:3rem;margin-bottom:clamp(4rem,7vw,7rem);padding:clamp(2rem,4vw,4rem);border-radius:var(--radius);background:var(--evergreen-950);color:white}.final-cta .kicker{color:var(--leaf-light)}.final-cta h2{color:white;font-size:clamp(2.3rem,3.7vw,3.8rem)}.final-cta p:not(.kicker){max-width:40ch;margin:.7rem 0 0;color:rgb(255 255 255 / .78)}
+  @media(max-width:900px){.section-head{grid-template-columns:1fr;gap:1rem}.trust-strip__inner{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(3){border-left:1px solid var(--line)}.trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.proof-cards{grid-template-columns:repeat(2,1fr)}.feature-panel,.closing-panel,.final-cta{grid-template-columns:1fr}.feature-panel__image,.closing-panel__image{height:330px;min-height:0}.story-section{grid-template-columns:1fr;gap:2rem}.story-section__copy{padding-left:0}.story-section__image{height:360px}.service-area .section-wrap{grid-template-columns:1fr;gap:1rem}}
+  @media(max-width:620px){.section-wrap,.trust-strip__inner{width:min(100% - 1.5rem,520px)}h2{font-size:clamp(2.35rem,10vw,3.5rem)}.trust-item{min-height:80px;padding:.8rem;font-size:.78rem}.trust-item img{width:24px;height:24px}.proof-cards,.treatment-grid,.spaces-grid,.process-grid{grid-template-columns:1fr}.process-grid article,.process-grid article:first-child{min-height:0;padding:1.5rem 0;border-right:0;border-bottom:1px solid #dcd8cb}.process-grid article:last-child{border-bottom:0}.proof-card{min-height:0}.feature-panel__copy,.closing-panel__copy{padding:2rem}.story-section__image{height:280px}.space-card__image{height:220px}.faq-section{padding-inline:.75rem}.final-cta{gap:2rem}.benefits-marquee__group span{font-size:.9rem}}
 </style>
