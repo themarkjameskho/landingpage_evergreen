@@ -9,7 +9,7 @@ const imageUrl = (image: SanityImage | undefined, width: number, height: number)
 const backgroundImage = imageUrl(hero.backgroundImage, 2200, 1200);
 const backgroundImageMobile = imageUrl(hero.backgroundImage, 900, 1200);
 const sideImage = imageUrl(hero.sideImage, 1100, 1100);
-const hasHomeScene = hero._key === 'landing-hero' && Boolean(backgroundImage && sideImage);
+const hasHomeScene = hero._key === 'landing-hero' && Boolean(backgroundImage);
 const hasTreatmentScene = hero._key === 'treatment-hero' && Boolean(backgroundImage);
 const overlay = hero.overlayVariant ?? 'darkGreen';
 ---
@@ -27,10 +27,9 @@ const overlay = hero.overlayVariant ?? 'darkGreen';
       </div> : null}
       {hasHomeScene && <div class="landing-hero__meta"><span>Locally owned &amp; operated</span><span>Total discretion</span><span>Same day service</span></div>}
     </div>
-    {(sideImage || hasTreatmentScene) && <div class:list={['landing-hero__visual', hasHomeScene && 'landing-hero__visual--separated']}>
+    {(hasHomeScene || sideImage || hasTreatmentScene) && <div class:list={['landing-hero__visual', hasHomeScene && 'landing-hero__visual--scene']}>
       {hasHomeScene ? <>
         <div class="landing-hero__scene" role="img" aria-label={hero.backgroundImage?.alt ?? ''}><span class="landing-hero__scene-tag">EverGreen Bed Bug Exterminator</span><span class="landing-hero__scene-badge" style="position:absolute;top:.7rem;right:.7rem;min-width:80px;display:grid;justify-items:center;padding:.4rem .5rem;border:1px solid var(--line);border-radius:9px;background:rgb(248 250 246 / .95);color:var(--evergreen-950);text-align:center;box-shadow:0 8px 18px rgb(13 47 31 / .13)"><strong style="font-size:1.3rem;line-height:1;font-weight:800;letter-spacing:-.06em">10+</strong><small style="margin-top:.2rem;font-size:.49rem;font-weight:700;line-height:1.1;text-transform:uppercase">years of<br/>experience</small></span></div>
-        <div class="landing-hero__portrait"><div class="landing-hero__portrait-frame"><img src={sideImage} alt={hero.sideImage?.alt ?? ''} width="1100" height="1100" loading="eager" fetchpriority="high" /></div><span>Sleep soundly again.<small>Care from a local EverGreen specialist.</small></span></div>
       </> : hasTreatmentScene ? <div class="landing-hero__scene" role="img" aria-label={hero.backgroundImage?.alt ?? ''}></div> : <img src={sideImage} alt={hero.sideImage?.alt ?? ''} width="1100" height="1100" loading="eager" fetchpriority="high" />}
     </div>}
   </div>
@@ -64,13 +63,8 @@ const overlay = hero.overlayVariant ?? 'darkGreen';
   .landing-hero--home .landing-hero__lede{max-width:53ch;margin-bottom:1.8rem;color:var(--muted);font-size:1.05rem;line-height:1.55}
   .landing-hero--home .landing-hero__visual{position:relative;min-height:510px;align-items:flex-end;overflow:hidden;border-radius:var(--radius);background:linear-gradient(145deg,rgb(13 47 31 / .2),rgb(13 47 31 / .1)),var(--hero-image,none) center/cover no-repeat,var(--evergreen-900)}
   .landing-hero--home .landing-hero__visual img{width:100%;height:510px;object-fit:contain;object-position:center bottom}
-  .landing-hero--home .landing-hero__visual--separated{display:grid;gap:12px;min-height:0;overflow:visible;border-radius:0;background:none}
+  .landing-hero--home .landing-hero__visual--scene{display:block;min-height:0;overflow:visible;border-radius:0;background:none}
   .landing-hero--home .landing-hero__scene{min-height:370px;aspect-ratio:3/2;border-radius:var(--radius);background:var(--hero-image) center/cover no-repeat,var(--evergreen-900)}
-  .landing-hero--home .landing-hero__portrait{height:112px;display:flex;align-items:center;gap:1.2rem;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:white;color:var(--evergreen-950);box-shadow:0 12px 28px rgb(13 47 31 / .07)}
-  .landing-hero--home .landing-hero__portrait-frame{flex:none;width:124px;height:112px;overflow:hidden;background:#dce9d9}
-  .landing-hero--home .landing-hero__portrait img{width:100%;height:100%;object-fit:cover;transform:translateY(22px) scale(1.8);transform-origin:center 15%}
-  .landing-hero--home .landing-hero__portrait span{padding-right:1rem;font-size:1rem;font-weight:800;letter-spacing:-.025em;line-height:1.2}
-  .landing-hero--home .landing-hero__portrait small{display:block;margin-top:.35rem;color:var(--muted);font-size:.75rem;font-weight:500;letter-spacing:0;line-height:1.4}
   .landing-hero--home .landing-hero__scene{position:relative;box-shadow:0 22px 42px rgb(13 47 31 / .13)}
   .landing-hero--home .landing-hero__scene-tag{position:absolute;top:1rem;left:1rem;padding:.4rem .6rem;border-radius:6px;background:rgb(248 250 246 / .9);color:var(--evergreen-900);font-size:.62rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;backdrop-filter:blur(8px)}
   .landing-hero--home .landing-hero__scene-badge{position:absolute;top:1rem;right:1rem;min-width:98px;display:grid;justify-items:center;padding:.6rem .8rem;border:1px solid var(--line);border-radius:9px;background:rgb(248 250 246 / .95);color:var(--evergreen-950);text-align:center;box-shadow:0 8px 18px rgb(13 47 31 / .13)}
@@ -96,8 +90,8 @@ const overlay = hero.overlayVariant ?? 'darkGreen';
   .landing-hero--treatment .btn-secondary{background:var(--evergreen-900);color:white}
   .landing-hero--treatment .btn-secondary:hover{background:var(--evergreen-800);color:white}
   .landing-hero--treatment .btn-ghost{border-color:var(--evergreen-800);color:var(--evergreen-800)}
-  @media(max-width:900px){.landing-hero--home{padding:3.5rem 0}.landing-hero--home .landing-hero__inner{width:min(100% - 1.5rem,680px);grid-template-columns:1fr;gap:2rem}.landing-hero--home .landing-hero__content{padding:0}.landing-hero--home .landing-hero__visual{min-height:430px}.landing-hero--home .landing-hero__visual img{height:430px}.landing-hero--home .landing-hero__visual--separated{min-height:0}.landing-hero--home .landing-hero__portrait img{height:100%}.landing-hero--home .landing-hero__actions .btn-ghost{border:1px solid var(--evergreen-800);padding:1rem 1.625rem;align-self:stretch}}
+  @media(max-width:900px){.landing-hero--home{padding:3.5rem 0}.landing-hero--home .landing-hero__inner{width:min(100% - 1.5rem,680px);grid-template-columns:1fr;gap:2rem}.landing-hero--home .landing-hero__content{padding:0}.landing-hero--home .landing-hero__visual{min-height:430px}.landing-hero--home .landing-hero__visual img{height:430px}.landing-hero--home .landing-hero__visual--scene{min-height:0}.landing-hero--home .landing-hero__actions .btn-ghost{border:1px solid var(--evergreen-800);padding:1rem 1.625rem;align-self:stretch}}
   @media(max-width:900px){.landing-hero--treatment{padding:3.5rem 0}.landing-hero--treatment .landing-hero__inner{width:min(100% - 1.5rem,680px);grid-template-columns:1fr;gap:2rem}.landing-hero--treatment .landing-hero__content{padding:0}.landing-hero--treatment .landing-hero__visual{min-height:360px}.landing-hero--treatment .landing-hero__scene{height:360px}}
-  @media(max-width:560px){.landing-hero--home{padding:2.5rem 0}.landing-hero--home h1{font-size:clamp(2.9rem,12vw,4rem)}.landing-hero--home .landing-hero__visual{min-height:340px}.landing-hero--home .landing-hero__visual img{height:340px}.landing-hero--home .landing-hero__scene{min-height:0;aspect-ratio:4/3}.landing-hero--home .landing-hero__scene-tag{top:.7rem;left:.7rem;max-width:180px;white-space:normal;font-size:.52rem}.landing-hero--home .landing-hero__scene-badge{top:.7rem;right:.7rem;min-width:65px;padding:.35rem}.landing-hero--home .landing-hero__scene-badge strong{font-size:1.1rem}.landing-hero--home .landing-hero__scene-badge small{font-size:.43rem}.landing-hero--home .landing-hero__portrait{height:90px}.landing-hero--home .landing-hero__portrait-frame{width:96px;height:90px}.landing-hero--home .landing-hero__portrait img{height:100%}.landing-hero--home .landing-hero__portrait span{font-size:.83rem}.landing-hero--home .landing-hero__portrait small{font-size:.66rem}}
+  @media(max-width:560px){.landing-hero--home{padding:2.5rem 0}.landing-hero--home h1{font-size:clamp(2.9rem,12vw,4rem)}.landing-hero--home .landing-hero__visual{min-height:340px}.landing-hero--home .landing-hero__visual img{height:340px}.landing-hero--home .landing-hero__scene{min-height:0;aspect-ratio:4/3}.landing-hero--home .landing-hero__scene-tag{top:.7rem;left:.7rem;max-width:180px;white-space:normal;font-size:.52rem}.landing-hero--home .landing-hero__scene-badge{top:.7rem;right:.7rem;min-width:65px;padding:.35rem}.landing-hero--home .landing-hero__scene-badge strong{font-size:1.1rem}.landing-hero--home .landing-hero__scene-badge small{font-size:.43rem}}
   @media(max-width:560px){.landing-hero--treatment{padding:2.5rem 0}.landing-hero--treatment h1{font-size:clamp(2.9rem,12vw,4rem)}.landing-hero--treatment .landing-hero__visual{min-height:280px}.landing-hero--treatment .landing-hero__scene{height:280px}}
 </style>
