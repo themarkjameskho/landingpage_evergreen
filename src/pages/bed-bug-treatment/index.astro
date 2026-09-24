@@ -6,11 +6,12 @@ import MicrositeHeader from '../../components/MicrositeHeader.astro';
 import TreatmentPage from '../../components/TreatmentPage.astro';
 import { getLandingPage } from '../../lib/landingPage';
 const page = await getLandingPage('landing-bed-bug-treatment');
+const homePage = await getLandingPage('landing-page');
 const title = page?.seo?.seoTitle ?? 'Bed Bug Treatment | EverGreen Bed Bug Exterminator';
 const description = page?.seo?.seoDescription;
 ---
 <LandingLayout title={title} description={description}>
   <MicrositeHeader currentPath="/bed-bug-treatment/" />
-  {page?.sections?.length ? <TreatmentPage page={page} /> : null}
+  {page?.sections?.length ? <TreatmentPage page={page} homePage={homePage} /> : null}
   <MicrositeFooter />
 </LandingLayout>

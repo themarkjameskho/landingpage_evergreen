@@ -2,7 +2,8 @@
 import type { LandingPage, SanityImage } from '../types/cms';
 import { buildSanityImageUrl } from '../lib/sanity';
 import LandingHero from './LandingHero.astro';
-const { page } = Astro.props as { page: LandingPage };
+
+const { page, homePage } = Astro.props as { page: LandingPage; homePage?: LandingPage | null };
 const sections = page.sections ?? [];
 const byKey = (key: string) => sections.find((section) => section._key === key) as Record<string, any> | undefined;
 const hero = byKey('treatment-hero');
@@ -10,43 +11,88 @@ const heat = byKey('heat-treatment');
 const heatBenefits = byKey('heat-benefits');
 const chemical = byKey('chemical-treatment');
 const chemicalBenefits = byKey('chemical-benefits');
-const image = (value: SanityImage | undefined, width: number, height?: number, fit: 'crop' | 'clip' = 'crop') => value ? buildSanityImageUrl(value, { width, height, fit, quality:84 }) : undefined;
-const heatImage = image(heat?.images?.[0] ?? heat?.sideImage, 1100, undefined, 'clip');
-const chemicalImage = image(chemical?.images?.[0] ?? chemical?.sideImage, 1100, undefined, 'clip');
-const iconUrl = (key?: string) => {
-  const icons: Record<string, string> = {
-    eco: 'leaf',
-    penetration: 'crosshair',
-    turnaround: 'timer',
-    single: 'check-circle-2',
-    protection: 'shield-check',
-    budget: 'badge-dollar-sign',
-    strategic: 'scan-search',
-    safety: 'heart-handshake'
-  };
-  return `https://api.iconify.design/lucide:${icons[key ?? ''] ?? 'circle-check'}.svg?color=%23a5cf63&width=64&height=64`;
-};
+const faq = homePage?.sections?.find((section) => section._key === 'faq') as Record<string, any> | undefined;
+const faqItems = faq?.faqs ?? [];
+const treatments = [heat, chemical].filter(Boolean) as Record<string, any>[];
+const trustItems = (heatBenefits?.items ?? []).slice(0, 4);
+const heatBenefitItems = heatBenefits?.items ?? [];
+const image = (value: SanityImage | undefined, width: number, height?: number) => value ? buildSanityImageUrl(value, { width, height, fit: height ? 'crop' : 'clip', quality: 84 }) : undefined;
+const heatImage = image(heat?.images?.[0] ?? heat?.sideImage, 1100, 850);
 const body = (section: any) => section?.description?.flatMap((block: any) => block.children?.map((child: any) => child.text).filter(Boolean) ?? []).join(' ') ?? section?.subtitle ?? '';
+const iconUrl = (key?: string) => {
+  const icons: Record<string, string> = { eco: 'leaf', penetration: 'crosshair', turnaround: 'timer', single: 'check-circle-2', protection: 'shield-check', budget: 'badge-dollar-sign', strategic: 'scan-search', safety: 'heart-handshake' };
+  return `https://api.iconify.design/lucide:${icons[key ?? ''] ?? 'circle-check'}.svg?color=%231d5539&width=64&height=64`;
+};
+const cardBenefits = (section: any) => section?._key === 'heat-treatment' ? heatBenefits?.items ?? [] : chemicalBenefits?.items ?? [];
+const cardCta = (section: any) => ({ label: section?.ctaLabel ?? hero?.primaryCtaLabel, link: section?.ctaLink ?? hero?.primaryCtaLink });
 ---
 
-<main id="main-content">
-  {hero && <LandingHero hero={hero as any} eyebrow="Bed Bug Treatment" />}
-  {heat && <section class="heat-section"><div class="heat-section__copy"><p class="kicker kicker--green">Heat Treatment</p><h2>{heat.title}</h2><p>{body(heat)}</p></div>{heatImage && <img src={heatImage} alt={heat.images?.[0]?.alt ?? heat.sideImage?.alt ?? ''} width="1100" height="851" loading="lazy" />}</section>}
-  {heatBenefits?.items?.length && <section class="benefits"><div class="benefits__head"><p class="kicker kicker--green">Why Heat Works</p><h2>{heatBenefits.title}</h2></div><div class="benefits__grid">{heatBenefits.items.map((item: any) => <article><img src={iconUrl(item._key)} alt="" width="56" height="56" loading="lazy" /><div><h3>{item.label}</h3><p>{item.description}</p></div></article>)}</div></section>}
-  {chemical && <section class="chemical"><div class="chemical__copy"><p class="kicker">Targeted Protection</p><h2>{chemical.title}</h2><p>{body(chemical)}</p>{chemical.ctaLabel && chemical.ctaLink && <a class="btn-secondary" href={chemical.ctaLink}>{chemical.ctaLabel}</a>}</div>{chemicalImage && <img src={chemicalImage} alt={chemical.images?.[0]?.alt ?? chemical.sideImage?.alt ?? ''} width="1100" height="825" loading="lazy" />}</section>}
-  {chemicalBenefits?.items?.length && <section class="benefits benefits--quiet"><div class="benefits__head"><p class="kicker kicker--green">Protection That Lasts</p><h2>{chemicalBenefits.title}</h2></div><div class="benefits__grid">{chemicalBenefits.items.map((item: any) => <article><img src={iconUrl(item._key)} alt="" width="56" height="56" loading="lazy" /><div><h3>{item.label}</h3><p>{item.description}</p></div></article>)}</div></section>}
+<main id="main-content" class="treatment-page">
+  {hero && <LandingHero hero={hero as any} eyebrow="Bed Bug Treatment" showActions={false} />}
+
+  {trustItems.length > 0 && <section class="trust-strip" aria-label="Treatment highlights"><div class="trust-strip__inner">
+    {trustItems.map((item: any) => <div class="trust-item"><img src={iconUrl(item._key)} alt="" width="30" height="30" loading="lazy" /><div><strong>{item.label}</strong><span>{item.description}</span></div></div>)}
+  </div></section>}
+
+  {treatments.length > 0 && <section class="treatment-options" id="treatments" aria-labelledby="options-heading"><div class="section-wrap">
+    <div class="section-head"><div><p class="kicker">Treatment options</p><h2 id="options-heading">{page.title}</h2></div>{hero?.subtitle && <p class="section-lede">{hero.subtitle}</p>}</div>
+    <div class="option-grid">{treatments.map((section: any, index: number) => {
+      const cta = cardCta(section);
+      return <article class:list={['option-card', index === 0 && 'option-card--featured']}>
+        <img class="option-card__icon" src={iconUrl(index === 0 ? 'turnaround' : 'strategic')} alt="" width="38" height="38" loading="lazy" />
+        <h3>{section.title}</h3><p class="option-card__body">{body(section)}</p>
+        <ul>{cardBenefits(section).map((item: any) => <li><span aria-hidden="true">✓</span>{item.label}</li>)}</ul>
+        {cta.label && cta.link && <a class="option-card__cta" href={cta.link}>{cta.label}<span aria-hidden="true">↗</span></a>}
+      </article>;
+    })}</div>
+  </div></section>}
+
+  {heat && <section class="heat-feature" aria-labelledby="heat-heading"><div class="section-wrap heat-panel">
+    <div class="heat-panel__copy"><p class="kicker">Heat Treatment</p><h2 id="heat-heading">{heatBenefits?.title ?? heat.title}</h2><p class="heat-panel__lede">{body(heat)}</p>
+      {heatBenefitItems.length > 0 && <ul>{heatBenefitItems.map((item: any) => <li><span aria-hidden="true">✓</span><div><strong>{item.label}</strong><span>{item.description}</span></div></li>)}</ul>}
+      {hero?.primaryCtaLabel && hero?.primaryCtaLink && <a class="heat-panel__link" href={hero.primaryCtaLink}>{hero.primaryCtaLabel}<span aria-hidden="true">↗</span></a>}
+    </div>
+    {heatImage && <div class="heat-panel__image"><img src={heatImage} alt={heat.images?.[0]?.alt ?? heat.sideImage?.alt ?? ''} width="1100" height="850" loading="lazy" /></div>}
+  </div></section>}
+
+  {faqItems.length > 0 && <section class="faq-section" id="faq" aria-labelledby="faq-heading"><div class="faq-section__inner">
+    <p class="kicker">Questions answered</p><h2 id="faq-heading">{faq?.heading ?? faq?.title}</h2>{faq?.description && <p class="section-lede">{faq.description}</p>}
+    <div class="faq-list">{faqItems.map((item: any, index: number) => <details open={index === 0}><summary>{item.question}<span class="faq-toggle" aria-hidden="true"></span></summary><p>{item.answer}</p></details>)}</div>
+    {faq?.buttonLabel && faq?.buttonLink && <a class="faq-call" href={faq.buttonLink}>{faq.buttonLabel}<span aria-hidden="true">↗</span></a>}
+  </div></section>}
+
+  {hero?.primaryCtaLabel && hero?.primaryCtaLink && <section class="closing-section" aria-labelledby="closing-heading"><div class="section-wrap closing-panel">
+    <div><p class="kicker">Bed Bug Treatment</p><h2 id="closing-heading">{hero.title}</h2>{hero.subtitle && <p>{hero.subtitle}</p>}</div>
+    <a class="btn-secondary" href={hero.primaryCtaLink}>{hero.primaryCtaLabel}<span aria-hidden="true">↗</span></a>
+  </div></section>}
 </main>
 
 <style>
-  .treatment-hero { min-height:600px; display:grid; align-items:end; background:linear-gradient(90deg,rgb(8 33 20 / .93),rgb(8 33 20 / .6),rgb(8 33 20 / .08)), var(--hero-image) center/cover no-repeat; color:white; }.treatment-hero__copy { width:min(1320px, calc(100% - 3rem)); padding:6rem 0; margin:auto; }.kicker { margin-bottom:1rem; color:rgb(240 250 239 / .76); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }.kicker--green { color:#477e44; }.treatment-hero h1 { max-width:720px; margin-bottom:1rem; font-size:clamp(3rem,6vw,5.5rem); line-height:.97; letter-spacing:-.065em; }.treatment-hero p:not(.kicker) { max-width:570px; color:rgb(255 255 255 / .84); font-size:1.1rem; }.button { display:inline-flex; min-height:48px; align-items:center; padding:.78rem 1rem; border-radius:999px; background:var(--leaf); color:#102d1e; font-size:.9rem; font-weight:800; text-decoration:none; transition:transform 170ms ease,background 170ms ease; }.button:hover { background:var(--leaf-light); transform:translateY(-2px); }.button:active { transform:translateY(1px); }.heat-section { padding-top:clamp(4rem,8vw,7rem); background:white; }.heat-section__copy { width:min(820px,calc(100% - 2.5rem)); padding-bottom:clamp(2rem,5vw,4rem); margin:auto; }.heat-section h2,.benefits h2,.chemical h2 { max-width:720px; margin-bottom:1rem; font-size:clamp(2.25rem,4.5vw,4.4rem); line-height:.99; letter-spacing:-.055em; }.heat-section__copy p:not(.kicker),.benefits p { color:var(--muted); }.heat-section > img { display:block; width:100%; height:clamp(310px,45vw,680px); object-fit:cover; }.benefits { width:min(1240px,calc(100% - 2.5rem)); padding:clamp(4rem,8vw,7rem) 0; margin:auto; }.benefits__head { max-width:700px; margin-bottom:2.5rem; }.benefits__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); }.benefits article { min-height:190px; padding:clamp(1.5rem,3vw,2.5rem); background:var(--paper); }.benefits h3 { margin-bottom:.6rem; font-size:1.28rem; }.benefits p { margin:0; }.benefits--quiet { background:var(--mist); }.chemical { display:grid; grid-template-columns:1fr 1fr; background:var(--evergreen-950); color:white; }.chemical__copy { display:grid; align-content:center; padding:clamp(2.5rem,4vw,4.5rem); }.chemical__copy p:not(.kicker) { max-width:50ch; color:rgb(240 250 239 / .76); }.chemical > img { width:100%; height:clamp(300px,34vw,480px); object-fit:cover; }.button--leaf { margin-top:1rem; }
-  .heat-section { width:min(1320px,calc(100% - 3rem)); display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:clamp(2rem,5vw,6rem); padding:clamp(3rem,5vw,4.5rem) 0; margin:auto; background:var(--paper); align-items:center; }.heat-section__copy { width:auto; padding:0; margin:0; }.heat-section > img { width:100%; height:clamp(300px,34vw,480px); border-radius:0 64px 0 64px; object-fit:contain; object-position:center; }.benefits { width:100%; padding:clamp(5rem,8vw,7rem) max(1.5rem,calc((100% - 1320px)/2)); margin:0; background:var(--evergreen-950); color:white; }.benefits--quiet { background:var(--mist); color:var(--ink); }.benefits__head { max-width:760px; margin-bottom:2.5rem; }.benefits h2 { color:inherit; }.benefits__grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 3rem; background:transparent; border:0; }.benefits article { display:grid; grid-template-columns:56px 1fr; gap:1.2rem; min-height:150px; padding:1.5rem 0; border-top:1px solid rgb(255 255 255 / .22); background:transparent; }.benefits--quiet article { border-color:var(--line); }.benefits article img { width:42px; height:42px; padding:0; border:0; border-radius:0; background:transparent; object-fit:contain; }.benefits h3 { color:inherit; }.benefits p { color:inherit; opacity:.75; }.chemical__copy .btn-secondary { margin-top:1rem; }
-  @media(max-width:800px) { .treatment-hero { min-height:580px; }.treatment-hero__copy { width:min(100% - 1.5rem,680px); padding:4.5rem 0; }.heat-section { width:min(100% - 1.5rem,680px); grid-template-columns:1fr; gap:2rem; }.heat-section > img { height:300px; border-radius:0 40px 0 40px; }.chemical { grid-template-columns:1fr; }.chemical > img { height:300px; }.benefits__grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 .9rem; }.benefits article { grid-template-columns:1fr; gap:.55rem; min-height:0; padding:1rem 0; }.benefits article img { width:2.25rem; height:2.25rem; } }
-  .chemical__copy > .btn-secondary { justify-self:start; width:max-content; }
-  /* The benefits section already owns the deep green surface; the chemical treatment follows with a lighter brand panel for visual separation. */
-  .chemical { width:min(1320px,calc(100% - 3rem)); margin:clamp(2rem,5vw,4rem) auto 0; border-radius:0 64px 0 64px; overflow:hidden; background:var(--mist); color:var(--ink); }
-  .chemical .kicker { color:#477e44; }
-  .chemical__copy p:not(.kicker) { color:var(--muted); }
-  .chemical__copy > .btn-secondary { justify-self:start; width:max-content; }
-  @media(max-width:800px) { .chemical { width:min(100% - 1.5rem,680px); border-radius:0 40px 0 40px; } }
-  .benefits.benefits--quiet { background:var(--paper); }
+  .section-wrap{width:min(1180px,calc(100% - 3rem));margin-inline:auto}
+  .kicker{margin:0 0 .8rem;color:var(--evergreen-800);font-size:.72rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+  h2{max-width:680px;margin:0;font-size:clamp(2.5rem,4.5vw,4.5rem);line-height:1.03;letter-spacing:-.055em}
+  h3{margin:0;font-size:clamp(1.6rem,2.4vw,2.3rem);line-height:1.12;letter-spacing:-.04em}
+  .section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.6fr);align-items:end;gap:3rem;margin-bottom:2.5rem}
+  .section-lede{max-width:46ch;margin:0;color:var(--muted);font-size:1.04rem}
+  .trust-strip{border-block:1px solid var(--line);background:white}
+  .trust-strip__inner{width:min(1180px,calc(100% - 3rem));display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin:auto}
+  .trust-item{min-height:102px;display:flex;gap:.8rem;align-items:center;padding:1rem;border-right:1px solid var(--line)}.trust-item:first-child{border-left:1px solid var(--line)}.trust-item img{flex:none;width:28px;height:28px}.trust-item strong,.trust-item span{display:block}.trust-item strong{color:var(--evergreen-950);font-size:.89rem;line-height:1.25}.trust-item span{margin-top:.2rem;color:var(--muted);font-size:.75rem;line-height:1.35}
+  .treatment-options{padding:clamp(5rem,8vw,8rem) 0;background:var(--mist)}
+  .option-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+  .option-card{position:relative;min-height:500px;display:flex;flex-direction:column;align-items:flex-start;padding:clamp(2rem,3vw,3rem);border:1px solid var(--line);border-radius:var(--radius);background:var(--paper)}
+  .option-card--featured{border-color:var(--evergreen-950);background:var(--evergreen-950);color:white}
+  .option-card__icon{width:38px;height:38px;margin-bottom:1.6rem}.option-card--featured .option-card__icon{filter:brightness(0) invert(1)}
+  .option-card h3{margin-bottom:.75rem}.option-card__body{max-width:56ch;margin:0 0 1.4rem;color:var(--muted);font-size:.96rem}.option-card--featured .option-card__body{color:rgb(255 255 255 / .78)}
+  .option-card ul{display:grid;gap:.65rem;margin:0 0 2rem;padding:0;list-style:none}.option-card li{display:flex;gap:.7rem;align-items:baseline;font-size:.9rem}.option-card li span{color:var(--evergreen-800);font-weight:800}.option-card--featured li span{color:var(--leaf-light)}
+  .option-card__cta{display:inline-flex;align-items:center;gap:1rem;margin-top:auto;padding:.9rem 1.25rem;border:1px solid var(--line);border-radius:999px;color:var(--evergreen-950);font-size:.85rem;font-weight:800;text-decoration:none}.option-card--featured .option-card__cta{border-color:transparent;background:var(--leaf);color:var(--evergreen-950)}
+  .heat-feature{padding:clamp(4rem,6vw,6rem) 0;background:var(--paper)}
+  .heat-panel{display:grid;grid-template-columns:1fr .92fr;min-height:550px;overflow:hidden;border-radius:var(--radius);background:var(--evergreen-950);color:white}
+  .heat-panel__copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(2.5rem,5vw,5rem)}.heat-panel .kicker{color:var(--leaf-light)}.heat-panel h2{margin-bottom:1.25rem;color:white}.heat-panel__lede{max-width:55ch;color:rgb(255 255 255 / .78)}
+  .heat-panel ul{display:grid;gap:.85rem;margin:1.4rem 0 0;padding:0;list-style:none}.heat-panel li{display:flex;gap:.85rem;align-items:baseline;font-size:.86rem}.heat-panel li>span{color:var(--leaf-light);font-weight:800}.heat-panel li strong{display:block}.heat-panel li div span{display:block;color:rgb(255 255 255 / .7)}
+  .heat-panel__link{display:inline-flex;gap:1rem;margin-top:2rem;padding-bottom:.25rem;border-bottom:1px solid var(--leaf-light);color:var(--leaf-light);font-size:.86rem;font-weight:800;text-decoration:none}
+  .heat-panel__image{min-height:550px}.heat-panel__image img{width:100%;height:100%;object-fit:cover}
+  .faq-section{padding:clamp(5rem,8vw,8rem) 1.5rem;background:white}.faq-section__inner{width:min(760px,100%);margin:auto}.faq-section h2{margin-bottom:.6rem}.faq-list{margin:2rem 0}.faq-list details{border-bottom:1px solid var(--line)}.faq-list summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:70px;cursor:pointer;list-style:none;font-weight:800}.faq-list summary::-webkit-details-marker{display:none}.faq-toggle{flex:none;width:24px;height:24px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--evergreen-800)}.faq-toggle::before{content:'+'}.faq-list details[open] .faq-toggle{background:var(--evergreen-800);color:white}.faq-list details[open] .faq-toggle::before{content:'−'}.faq-list details p{max-width:65ch;margin:0 3rem 1.3rem 0;color:var(--muted);font-size:.94rem}.faq-call{display:inline-flex;gap:1rem;align-items:center;color:var(--evergreen-800);font-weight:800;text-decoration:none}
+  .closing-section{padding:0 0 clamp(5rem,8vw,8rem);background:white}.closing-panel{display:grid;grid-template-columns:1fr auto;align-items:center;gap:3rem;padding:clamp(2.5rem,5vw,5rem);border-radius:var(--radius);background:var(--evergreen-950);color:white}.closing-panel .kicker{color:var(--leaf-light)}.closing-panel h2{color:white}.closing-panel p:not(.kicker){max-width:50ch;margin:.8rem 0 0;color:rgb(255 255 255 / .78)}.closing-panel .btn-secondary{min-width:260px;justify-content:space-between}
+  @media(max-width:900px){.section-head{grid-template-columns:1fr;gap:1rem}.trust-strip__inner{grid-template-columns:repeat(2,minmax(0,1fr))}.trust-item:nth-child(3){border-left:1px solid var(--line)}.trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.heat-panel{grid-template-columns:1fr}.heat-panel__image{min-height:350px;height:350px}.closing-panel{grid-template-columns:1fr;gap:2rem}.closing-panel .btn-secondary{justify-self:start}}
+  @media(max-width:620px){.section-wrap,.trust-strip__inner{width:min(100% - 1.5rem,520px)}h2{font-size:clamp(2.35rem,10vw,3.4rem)}.trust-item{min-height:95px;padding:.7rem}.trust-item img{width:22px;height:22px}.trust-item strong{font-size:.76rem}.trust-item span{font-size:.67rem}.option-grid{grid-template-columns:1fr}.option-card{min-height:0}.heat-panel__copy{padding:2rem}.heat-panel__image{height:280px;min-height:0}.faq-section{padding-inline:.75rem}.closing-panel{padding:2rem}.closing-panel .btn-secondary{width:100%;min-width:0}}
 </style>

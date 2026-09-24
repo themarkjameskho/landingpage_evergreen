@@ -3,7 +3,7 @@ import { productionSanityClient, sanityClient } from './sanity';
 import type { LandingPage } from '../types/cms';
 
 const defaultLandingPageSlug = import.meta.env.SANITY_LANDING_PAGE_SLUG ?? 'landing-page';
-const landingPageQuery = groq`*[_type == "page" && pageType == "landing-page" && slug.current == $slug][0]{
+const landingPageQuery = groq`*[_type == "page" && slug.current == $slug][0]{
   title,
   "slug": slug.current,
   seo,
