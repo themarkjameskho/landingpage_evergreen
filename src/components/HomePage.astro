@@ -5,7 +5,7 @@ import LandingHero from './LandingHero.astro';
 import CallCard from './CallCard.astro';
 import { iconDataUrl } from '../lib/icons';
 
-const { page, reviewEmbedHtml } = Astro.props as { page: LandingPage; reviewEmbedHtml?: string };
+const { page } = Astro.props as { page: LandingPage };
 const sections = page.sections ?? [];
 const byKey = (key: string) => sections.find((section) => section._key === key) as (LandingSection & Record<string, any>) | undefined;
 const hero = byKey('landing-hero');
@@ -15,6 +15,7 @@ const treatments = byKey('treatments');
 const spaces = byKey('spaces');
 const faq = byKey('faq');
 const financing = byKey('financing');
+const reviewCarousel = sections.find((section) => section._type === 'reviewCarouselSection') as (LandingSection & Record<string, any>) | undefined;
 const proofItems = proof?.items ?? [];
 const treatmentItems = treatments?.items ?? [];
 const spaceItems = spaces?.items ?? [];
@@ -93,10 +94,23 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
     </div>
   </section>}
 
-  <section class="reviews-band" aria-labelledby="reviews-heading"><div class="section-wrap">
-    <div class="section-head"><div><p class="kicker">Customer Reviews</p><h2 id="reviews-heading">Hear From Our Neighbors.</h2></div><p class="section-lede">Read what customers are sharing about their experience with EverGreen.</p></div>
-    {reviewEmbedHtml ? <div class="reviews-band__embed" set:html={reviewEmbedHtml}></div> : <a class="reviews-band__card" href="/reviews/"><span class="reviews-band__icon" aria-hidden="true">“</span><span><strong>EverGreen customer reviews</strong><small>See feedback from the communities we serve.</small></span><span class="reviews-band__arrow" aria-hidden="true">→</span></a>}
-  </div></section>
+  {reviewCarousel && <section class="reviews-band" aria-labelledby="reviews-heading"><div class="section-wrap">
+    <div class="section-head"><div><p class="kicker">{reviewCarousel.eyebrow}</p><h2 id="reviews-heading">{reviewCarousel.title}</h2></div>{reviewCarousel.subtitle && <p class="section-lede">{reviewCarousel.subtitle}</p>}</div>
+    <div class="reviews-carousel" data-review-carousel>
+      <div class="reviews-carousel__controls">
+        <button type="button" data-review-prev aria-label="Show previous reviews">←</button>
+        <button type="button" data-review-next aria-label="Show next reviews">→</button>
+      </div>
+      <div class="reviews-carousel__track" data-review-track aria-label="Customer reviews">
+        {reviewCarousel.reviews?.map((review: any) => <article class="review-card">
+          <div class="review-card__top"><strong>{review.reviewerName}</strong>{review.date && <time datetime={review.date}>{new Date(`${review.date}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}</time>}</div>
+          <div class="review-card__rating" aria-label={`${review.rating} out of 5 stars`}>{Array.from({ length: Math.min(5, Math.max(0, Number(review.rating) || 0)) }, () => '★').join('')}</div>
+          <p>{review.body}</p>
+          {review.source && <small class="review-card__source">{review.source} review</small>}
+        </article>)}
+      </div>
+    </div>
+  </div></section>}
 
   <section class="service-area" aria-label="Service area"><div class="section-wrap"><div><p class="kicker">Service Area</p><h2>Serving Northwest Arkansas and the Arkansas River Valley.</h2></div><p>Local bed bug treatment for the places you live and work.</p></div></section>
 
@@ -172,17 +186,33 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
   .treatment-card p{max-width:50ch;margin:0 0 2rem;color:var(--muted);font-size:.96rem}.treatment-card--featured p{color:rgb(255 255 255 / .78)}
   .treatment-card__link{display:inline-flex;gap:1rem;margin-top:auto;padding-bottom:.2rem;border-bottom:1px solid currentColor;color:var(--evergreen-800);font-weight:800;text-decoration:none}.treatment-card--featured .treatment-card__link{color:var(--leaf-light)}
   .reviews-band{padding:clamp(4.5rem,7vw,7rem) 0;background:white}
-  .reviews-band__embed{width:100%;min-height:320px;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:0 18px 48px rgb(8 33 20 / .06)}
-  .reviews-band__embed iframe{display:block;width:100%;border:0}
-  .reviews-band__card{display:flex;align-items:center;gap:1.5rem;min-height:132px;padding:1.6rem 2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);color:var(--evergreen-950);text-decoration:none;transition:transform .2s,box-shadow .2s}
-  .reviews-band__card:hover{transform:translateY(-2px);box-shadow:0 16px 35px rgb(13 47 31 / .1)}
-  .reviews-band__icon{font-size:3.5rem;line-height:1;color:var(--evergreen-800)}.reviews-band__card strong{display:block;font-size:1.4rem}.reviews-band__card small{display:block;color:var(--muted);font-size:.88rem}.reviews-band__arrow{margin-left:auto;font-size:1.7rem}
+  .reviews-carousel__controls{display:flex;justify-content:flex-end;gap:.55rem;margin:-.5rem 0 1rem}
+  .reviews-carousel__controls button{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;background:white;color:var(--evergreen-950);font-size:1.2rem;cursor:pointer}
+  .reviews-carousel__controls button:hover{background:var(--evergreen-950);color:white}
+  .reviews-carousel__track{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - 2rem)/3);gap:1rem;overflow-x:auto;padding:.2rem .1rem 1rem;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-inline:contain}
+  .reviews-carousel__track::-webkit-scrollbar{display:none}
+  .review-card{min-height:250px;display:flex;flex-direction:column;align-items:flex-start;padding:1.6rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);scroll-snap-align:start}
+  .review-card__top{display:flex;width:100%;align-items:baseline;justify-content:space-between;gap:1rem;color:var(--evergreen-950)}
+  .review-card__top strong{font-size:1.02rem}.review-card__top time{color:var(--muted);font-size:.78rem;white-space:nowrap}
+  .review-card__rating{margin:.8rem 0 .65rem;color:#d49a18;font-size:1.18rem;letter-spacing:.1em}
+  .review-card p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.6}
+  .review-card__source{margin-top:auto;padding-top:1rem;color:var(--evergreen-800);font-size:.74rem;font-weight:700}
   .service-area{padding:clamp(3rem,5vw,5rem) 0;background:#f1eee5}.service-area .section-wrap{display:grid;grid-template-columns:1fr .55fr;gap:3rem;align-items:end}.service-area h2{max-width:650px;font-size:clamp(2rem,3.5vw,3.6rem)}.service-area p:last-child{max-width:33ch;margin:0;color:var(--muted)}
   .spaces{padding:clamp(4.5rem,7vw,7rem) 0}.spaces-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
   .space-card{overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:#fff}.space-card__image{height:260px;overflow:hidden}.space-card__image img{width:100%;height:100%;object-fit:cover}.space-card__copy{min-height:195px;padding:2rem}.space-card h3{margin-bottom:.6rem;font-size:1.65rem}.space-card p{margin-bottom:.7rem;color:var(--muted);font-size:.93rem}.space-card a{color:var(--evergreen-800);font-weight:800;text-decoration:none}
   .faq-section{padding:clamp(4.5rem,7vw,7rem) 1.5rem;background:white}.faq-section__inner{width:min(760px,100%);margin:auto}.faq-section h2{margin-bottom:.6rem}.faq-list{margin:2rem 0}.faq-list details{border-bottom:1px solid var(--line)}.faq-list summary{display:flex;justify-content:space-between;align-items:center;gap:1rem;min-height:70px;cursor:pointer;list-style:none;font-weight:800}.faq-list summary::-webkit-details-marker{display:none}.faq-toggle{flex:none;width:24px;height:24px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;color:var(--evergreen-800)}.faq-toggle::before{content:'+'}.faq-list details[open] .faq-toggle{background:var(--evergreen-800);color:white}.faq-list details[open] .faq-toggle::before{content:'−'}.faq-list details p{max-width:65ch;margin:0 3rem 1.3rem 0;color:var(--muted);font-size:.94rem}.faq-call{display:inline-flex;gap:1rem;align-items:center;color:var(--evergreen-800);font-weight:800;text-decoration:none}
   .closing-section{padding:clamp(4rem,6vw,6rem) 0}.closing-panel{display:grid;grid-template-columns:1.05fr .95fr;min-height:380px;overflow:hidden;border-radius:var(--radius);background:var(--evergreen-950);color:white}.closing-panel__copy{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:clamp(2.5rem,5vw,5rem)}.closing-panel h2{margin-bottom:1rem;color:white}.closing-panel__copy>p:not(.kicker){max-width:48ch;color:rgb(255 255 255 / .8)}.closing-panel .btn-secondary{margin-top:1rem}.closing-panel__image{min-height:380px}.closing-panel__image img{width:100%;height:100%;object-fit:cover}
   .final-cta{display:grid;grid-template-columns:1fr minmax(280px,420px);align-items:center;gap:3rem;margin-bottom:clamp(4rem,7vw,7rem);padding:clamp(2rem,4vw,4rem);border-radius:var(--radius);background:var(--evergreen-950);color:white}.final-cta .kicker{color:var(--leaf-light)}.final-cta h2{color:white;font-size:clamp(2.3rem,3.7vw,3.8rem)}.final-cta p:not(.kicker){max-width:40ch;margin:.7rem 0 0;color:rgb(255 255 255 / .78)}
-  @media(max-width:900px){.section-head{grid-template-columns:1fr;gap:1rem}.trust-strip__inner{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(3){border-left:1px solid var(--line)}.trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.proof-cards{grid-template-columns:repeat(2,1fr)}.feature-panel,.closing-panel,.final-cta{grid-template-columns:1fr}.feature-panel__image,.closing-panel__image{height:330px;min-height:0}.story-section{grid-template-columns:1fr;gap:2rem}.story-section__copy{padding-left:0}.story-section__image{height:360px}.service-area .section-wrap{grid-template-columns:1fr;gap:1rem}}
-  @media(max-width:620px){.section-wrap,.trust-strip__inner{width:min(100% - 1.5rem,520px)}h2{font-size:clamp(2.35rem,10vw,3.5rem)}.trust-item{min-height:80px;padding:.8rem;font-size:.78rem}.trust-item img{width:24px;height:24px}.proof-cards,.treatment-grid,.spaces-grid,.process-grid{grid-template-columns:1fr}.process-grid article,.process-grid article:first-child{min-height:0;padding:1.5rem 0;border-right:0;border-bottom:1px solid #dcd8cb}.process-grid article:last-child{border-bottom:0}.proof-card{min-height:0}.feature-panel__copy,.closing-panel__copy{padding:2rem}.story-section__image{height:280px}.space-card__image{height:220px}.faq-section{padding-inline:.75rem}.final-cta{gap:2rem}}
+  @media(max-width:900px){.section-head{grid-template-columns:1fr;gap:1rem}.trust-strip__inner{grid-template-columns:repeat(2,1fr)}.trust-item:nth-child(3){border-left:1px solid var(--line)}.trust-item:nth-child(-n+2){border-bottom:1px solid var(--line)}.proof-cards{grid-template-columns:repeat(2,1fr)}.feature-panel,.closing-panel,.final-cta{grid-template-columns:1fr}.feature-panel__image,.closing-panel__image{height:330px;min-height:0}.story-section{grid-template-columns:1fr;gap:2rem}.story-section__copy{padding-left:0}.story-section__image{height:360px}.service-area .section-wrap{grid-template-columns:1fr;gap:1rem}.reviews-carousel__track{grid-auto-columns:calc((100% - 1rem)/2)}}
+  @media(max-width:620px){.section-wrap,.trust-strip__inner{width:min(100% - 1.5rem,520px)}h2{font-size:clamp(2.35rem,10vw,3.5rem)}.trust-item{min-height:80px;padding:.8rem;font-size:.78rem}.trust-item img{width:24px;height:24px}.proof-cards,.treatment-grid,.spaces-grid,.process-grid{grid-template-columns:1fr}.process-grid article,.process-grid article:first-child{min-height:0;padding:1.5rem 0;border-right:0;border-bottom:1px solid #dcd8cb}.process-grid article:last-child{border-bottom:0}.proof-card{min-height:0}.feature-panel__copy,.closing-panel__copy{padding:2rem}.story-section__image{height:280px}.space-card__image{height:220px}.faq-section{padding-inline:.75rem}.final-cta{gap:2rem}.reviews-carousel__track{grid-auto-columns:88%}.review-card{min-height:230px;padding:1.25rem}}
 </style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-review-carousel]').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('[data-review-track]');
+    if (!track) return;
+    const scroll = (direction: number) => track.scrollBy({ left: direction * track.clientWidth * 0.85, behavior: 'smooth' });
+    carousel.querySelector<HTMLButtonElement>('[data-review-prev]')?.addEventListener('click', () => scroll(-1));
+    carousel.querySelector<HTMLButtonElement>('[data-review-next]')?.addEventListener('click', () => scroll(1));
+  });
+</script>

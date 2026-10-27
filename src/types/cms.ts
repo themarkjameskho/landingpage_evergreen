@@ -71,7 +71,16 @@ export type HtmlSection = {
   htmlContent?: string;
 };
 
-export type LandingSection = HeroSection | TwoColumnSection | IconGridSection | ServiceGridSection | FaqSection | HtmlSection;
+export type ReviewCarouselSection = {
+  _type: 'reviewCarouselSection';
+  _key?: string;
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+  reviews?: Array<{ _key?: string; reviewerName?: string; rating?: number; body?: string; date?: string; source?: string }>;
+};
+
+export type LandingSection = HeroSection | TwoColumnSection | IconGridSection | ServiceGridSection | FaqSection | HtmlSection | ReviewCarouselSection;
 
 export type LandingPage = {
   title?: string;
