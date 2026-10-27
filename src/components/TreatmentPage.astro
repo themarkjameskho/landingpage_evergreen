@@ -3,6 +3,7 @@ import type { LandingPage, SanityImage } from '../types/cms';
 import { buildSanityImageUrl } from '../lib/sanity';
 import LandingHero from './LandingHero.astro';
 import CallCard from './CallCard.astro';
+import { iconDataUrl } from '../lib/icons';
 
 const { page } = Astro.props as { page: LandingPage };
 const sections = page.sections ?? [];
@@ -18,10 +19,6 @@ const heatBenefitItems = heatBenefits?.items ?? [];
 const image = (value: SanityImage | undefined, width: number, height?: number) => value ? buildSanityImageUrl(value, { width, height, fit: height ? 'crop' : 'clip', quality: 84 }) : undefined;
 const heatImage = image(heat?.images?.[0] ?? heat?.sideImage, 1100, 850);
 const body = (section: any) => section?.description?.flatMap((block: any) => block.children?.map((child: any) => child.text).filter(Boolean) ?? []).join(' ') ?? section?.subtitle ?? '';
-const iconUrl = (key?: string) => {
-  const icons: Record<string, string> = { eco: 'leaf', penetration: 'crosshair', turnaround: 'timer', single: 'check-circle-2', protection: 'shield-check', budget: 'badge-dollar-sign', strategic: 'scan-search', safety: 'heart-handshake' };
-  return `https://api.iconify.design/lucide:${icons[key ?? ''] ?? 'circle-check'}.svg?color=%231d5539&width=64&height=64`;
-};
 const cardBenefits = (section: any) => section?._key === 'heat-treatment' ? heatBenefits?.items ?? [] : chemicalBenefits?.items ?? [];
 const cardCta = (section: any) => ({ label: section?.ctaLabel ?? hero?.primaryCtaLabel, link: section?.ctaLink ?? hero?.primaryCtaLink });
 ---
@@ -30,7 +27,7 @@ const cardCta = (section: any) => ({ label: section?.ctaLabel ?? hero?.primaryCt
   {hero && <LandingHero hero={hero as any} eyebrow="Bed Bug Treatment" showActions={false} />}
 
   {trustItems.length > 0 && <section class="trust-strip" aria-label="Treatment highlights"><div class="trust-strip__inner">
-    {trustItems.map((item: any) => <div class="trust-item"><img src={iconUrl(item._key)} alt="" width="30" height="30" loading="lazy" /><div><strong>{item.label}</strong><span>{item.description}</span></div></div>)}
+    {trustItems.map((item: any) => <div class="trust-item"><img src={iconDataUrl(item._key, item.label)} alt="" width="30" height="30" loading="lazy" /><div><strong>{item.label}</strong><span>{item.description}</span></div></div>)}
   </div></section>}
 
   {treatments.length > 0 && <section class="treatment-options" id="treatments" aria-labelledby="options-heading"><div class="section-wrap">
@@ -38,7 +35,7 @@ const cardCta = (section: any) => ({ label: section?.ctaLabel ?? hero?.primaryCt
     <div class="option-grid">{treatments.map((section: any, index: number) => {
       const cta = cardCta(section);
       return <article class:list={['option-card', index === 0 && 'option-card--featured']}>
-        <img class="option-card__icon" src={iconUrl(index === 0 ? 'turnaround' : 'strategic')} alt="" width="38" height="38" loading="lazy" />
+        <img class="option-card__icon" src={iconDataUrl(index === 0 ? 'turnaround' : 'strategic', section.title)} alt="" width="38" height="38" loading="lazy" />
         <h3>{section.title}</h3><p class="option-card__body">{body(section)}</p>
         <ul>{cardBenefits(section).map((item: any) => <li><span aria-hidden="true">✓</span>{item.label}</li>)}</ul>
         {cta.label && cta.link && <a class="option-card__cta" href={cta.link}>{cta.label}<span aria-hidden="true">↗</span></a>}
