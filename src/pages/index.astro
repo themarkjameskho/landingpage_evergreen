@@ -7,13 +7,18 @@ import { getLandingPage } from '../lib/landingPage';
 import MicrositeFooter from '../components/MicrositeFooter.astro';
 import MicrositeHeader from '../components/MicrositeHeader.astro';
 
-const page = await getLandingPage('landing-page');
+const [page, reviewsPage] = await Promise.all([
+  getLandingPage('landing-page'),
+  getLandingPage('landing-reviews'),
+]);
+const reviewEmbedHtml = (reviewsPage?.sections?.find((section) => section._type === 'htmlSection') as { htmlContent?: string } | undefined)
+  ?.htmlContent?.replace(/\sdata-romw-lazy(?=[\s>])/g, '');
 const title = page?.seo?.seoTitle ?? page?.title ?? 'EverGreen Bed Bug Exterminator';
 const description = page?.seo?.seoDescription;
 ---
 
 <LandingLayout title={title} description={description}>
   <MicrositeHeader currentPath="/" />
-  {page?.sections?.length ? <HomePage page={page} /> : null}
+  {page?.sections?.length ? <HomePage page={page} reviewEmbedHtml={reviewEmbedHtml} /> : null}
   <MicrositeFooter />
 </LandingLayout>

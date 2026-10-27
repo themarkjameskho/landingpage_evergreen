@@ -5,7 +5,7 @@ import LandingHero from './LandingHero.astro';
 import CallCard from './CallCard.astro';
 import { iconDataUrl } from '../lib/icons';
 
-const { page } = Astro.props as { page: LandingPage };
+const { page, reviewEmbedHtml } = Astro.props as { page: LandingPage; reviewEmbedHtml?: string };
 const sections = page.sections ?? [];
 const byKey = (key: string) => sections.find((section) => section._key === key) as (LandingSection & Record<string, any>) | undefined;
 const hero = byKey('landing-hero');
@@ -95,7 +95,7 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
 
   <section class="reviews-band" aria-labelledby="reviews-heading"><div class="section-wrap">
     <div class="section-head"><div><p class="kicker">Customer Reviews</p><h2 id="reviews-heading">Hear From Our Neighbors.</h2></div><p class="section-lede">Read what customers are sharing about their experience with EverGreen.</p></div>
-    <a class="reviews-band__card" href="/reviews/"><span class="reviews-band__icon" aria-hidden="true">“</span><span><strong>EverGreen customer reviews</strong><small>See feedback from the communities we serve.</small></span><span class="reviews-band__arrow" aria-hidden="true">→</span></a>
+    {reviewEmbedHtml ? <div class="reviews-band__embed" set:html={reviewEmbedHtml}></div> : <a class="reviews-band__card" href="/reviews/"><span class="reviews-band__icon" aria-hidden="true">“</span><span><strong>EverGreen customer reviews</strong><small>See feedback from the communities we serve.</small></span><span class="reviews-band__arrow" aria-hidden="true">→</span></a>}
   </div></section>
 
   <section class="service-area" aria-label="Service area"><div class="section-wrap"><div><p class="kicker">Service Area</p><h2>Serving Northwest Arkansas and the Arkansas River Valley.</h2></div><p>Local bed bug treatment for the places you live and work.</p></div></section>
@@ -172,6 +172,8 @@ const blocksToText = (blocks: any[] | undefined) => blocks?.flatMap((block) => b
   .treatment-card p{max-width:50ch;margin:0 0 2rem;color:var(--muted);font-size:.96rem}.treatment-card--featured p{color:rgb(255 255 255 / .78)}
   .treatment-card__link{display:inline-flex;gap:1rem;margin-top:auto;padding-bottom:.2rem;border-bottom:1px solid currentColor;color:var(--evergreen-800);font-weight:800;text-decoration:none}.treatment-card--featured .treatment-card__link{color:var(--leaf-light)}
   .reviews-band{padding:clamp(4.5rem,7vw,7rem) 0;background:white}
+  .reviews-band__embed{width:100%;min-height:320px;overflow:hidden;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);box-shadow:0 18px 48px rgb(8 33 20 / .06)}
+  .reviews-band__embed iframe{display:block;width:100%;border:0}
   .reviews-band__card{display:flex;align-items:center;gap:1.5rem;min-height:132px;padding:1.6rem 2rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper);color:var(--evergreen-950);text-decoration:none;transition:transform .2s,box-shadow .2s}
   .reviews-band__card:hover{transform:translateY(-2px);box-shadow:0 16px 35px rgb(13 47 31 / .1)}
   .reviews-band__icon{font-size:3.5rem;line-height:1;color:var(--evergreen-800)}.reviews-band__card strong{display:block;font-size:1.4rem}.reviews-band__card small{display:block;color:var(--muted);font-size:.88rem}.reviews-band__arrow{margin-left:auto;font-size:1.7rem}
